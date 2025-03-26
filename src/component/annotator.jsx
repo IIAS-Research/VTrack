@@ -110,7 +110,8 @@ export default function DicomAnnotator() {
                 y, 
                 label, 
                 parent: parent ? keypoints[currentPage].indexOf(parent) : null
-            })) : []
+            })) : [],
+            // skeleton: skeletons[currentPage] || [] // Je ne sais pas si ca sert 
         }, null, 2);
         
         const blob = new Blob([json], { type: "application/json" });
@@ -121,7 +122,42 @@ export default function DicomAnnotator() {
         a.click();
         URL.revokeObjectURL(url);
     };
+
+    const handleLoadJSON = (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
     
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data = JSON.parse(e.target.result);
+    
+                if (data.vessel) {
+                    const newKeypoints = { ...keypoints };
+                    newKeypoints[currentPage] = data.vessel.map(({ x, y, label, parent }, index) => ({
+                        x, 
+                        y, 
+                        label, 
+                        parent: parent !== null ? data.vessel[parent] : null
+                    }));
+                    setKeypoints(newKeypoints);
+                }
+    
+                if (data.skeleton) {
+                    const newSkeletons = { ...skeletons };
+                    newSkeletons[currentPage] = data.skeleton;
+                    setSkeletons(newSkeletons);
+                }
+    
+                drawAll(currentPage);
+            } catch (error) {
+                console.error("Erreur lors du chargement du JSON :", error);
+            }
+        };
+        reader.readAsText(file);
+    };
+    
+
     // Instructions for zoom/pan
     const [showInstructions, setShowInstructions] = useState(true);
     
@@ -192,14 +228,17 @@ export default function DicomAnnotator() {
         <div className="p-4 mt-16 flex gap-4">
             {/* Left panel - Image viewer */}
             <div className="w-2/3 flex flex-col items-center rounded p-4 bg-white border border-slate-200 shadow-md">
-                <input
-                    type="file"
-                    accept=".dcm,.png,.jpg,.jpeg,.gif,.bmp"
-                    ref={fileInputRef}
-                    onChange={handleFileChange}
-                    className="mb-4"
-                    multiple
-                />
+                <label className="flex items-center gap-2 bg-indigo-500 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-indigo-600 transition">
+                    <input 
+                        type="file" 
+                        accept=".dcm,.png,.jpg,.jpeg,.gif,.bmp" 
+                        ref={fileInputRef} 
+                        onChange={handleFileChange} 
+                        className="hidden" 
+                        multiple
+                    />
+                    📂 <span>Choisir une image</span>
+                </label>
                 <div className="relative max-w-full border rounded shadow-md overflow-hidden">
                     {/* Zoom Instructions */}
                     {showInstructions && dicomLoaded && (
@@ -262,6 +301,7 @@ export default function DicomAnnotator() {
                         >
                             Reset Skeletons
                         </button>
+
                         {/* Keypoint Size Controls */}
                         <div className="flex items-center justify-between">
                             <button 
@@ -302,6 +342,16 @@ export default function DicomAnnotator() {
                             />
                         )}
                     </div>
+                    {/* Bouton pour charger une annotation JSON */}
+                    <label className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-green-600 transition">
+                        <input 
+                            type="file" 
+                            accept=".json" 
+                            onChange={handleLoadJSON} 
+                            className="hidden"
+                        />
+                        📑 <span>Charger une annotation</span>
+                        </label>
                 </div>
                 {/* Image Navigator */}
                 <ImageNavigator 
