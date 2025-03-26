@@ -5,11 +5,29 @@ export function useSkeletons({ canvasRef, currentPage, selectedLabel, keypoints,
     const [startPoint, setStartPoint] = useState(null);
 
     const colors = {
-        ICA: "red", MCA1: "blue", MCA2: "green", MCA3: "yellow",
-        PCA1: "purple", PCA2: "orange", PCA3: "pink", BA: "cyan",
-        ACA1: "lime", ACA2: "brown", ACA3: "magenta", SCA: "teal",
-        PCA: "gold", PCOM: "navy", VA: "coral"
+        ICA: "#FFADAD",  // Rouge pastel
+        MCA1: "#9BB1FF", // Bleu pastel
+        MCA2: "#A0E7E5", // Turquoise pastel
+        MCA3: "#FFD6A5", // Orange pastel
+        PCA1: "#D4A5A5", // Rose pastel
+        PCA2: "#C6A2FC", // Violet pastel
+        PCA3: "#FFB5E8", // Rose plus vif
+        BA: "#A7E9AF",   // Vert pastel
+        ACA1: "#FBE7C6", // Jaune pastel
+        ACA2: "#B5EAD7", // Menthe pastel
+        ACA3: "#E2F0CB", // Vert clair
+        SCA: "#AFCBFF",  // Bleu ciel
+        PCA: "#E4C1F9",  // Mauve clair
+        PCOM: "#C3B1E1", // Lilas pastel
+        VA: "#FFCBCB"    // Rose clair
     };
+    
+    // const colors = {
+        // ICA: "red", MCA1: "blue", MCA2: "green", MCA3: "yellow",
+        // PCA1: "purple", PCA2: "orange", PCA3: "pink", BA: "cyan",
+        // ACA1: "lime", ACA2: "brown", ACA3: "magenta", SCA: "teal",
+        // PCA: "gold", PCOM: "navy", VA: "coral"
+    // };
 
     const handleCanvasClick = (event) => {
         if (!selectedLabel) return; // Ne pas tracer ni enregistrer de skeletons si aucun label n'est sélectionné

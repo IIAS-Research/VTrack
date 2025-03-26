@@ -9,6 +9,10 @@ export function VesselLabels({ title, colors, selectedLabel, setSelectedLabel })
                     key={label}
                     onClick={() => setSelectedLabel(label)}
                     className={`mb-1 px-2 py-1 rounded text-sm ${selectedLabel === label ? 'bg-indigo-500 text-white' : 'bg-indigo-100 text-indigo-500'}`}
+                    style={{ 
+                        backgroundColor: colors[label], // ajout couleur identique aux keypoints
+                        color: `color-mix(in srgb, ${colors[label]} 60%, black)`, // Version plus foncée de la couleur
+                    }}
                 >
                     {label}
                 </button>
