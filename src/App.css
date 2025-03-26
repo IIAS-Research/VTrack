@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+body {
+    background-color: #eeeded;
+}
+button:hover{opacity: 0.5;}
