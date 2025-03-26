@@ -21,22 +21,17 @@ export function useSkeletons({ canvasRef, currentPage, selectedLabel, keypoints,
         if (!ctx) return;
 
         const rect = canvas.getBoundingClientRect();
+
         const scaleX = canvas.width / rect.width;
         const scaleY = canvas.height / rect.height;
+
+        // Obtenir les coordonnées du clic par rapport au canvas
+        const clickX = event.clientX - rect.left;
+        const clickY = event.clientY - rect.top;
         
-        // Get current transformation matrix to account for zoom/pan
-        const transform = canvas.style.transform || '';
-        let zoomScale = 1;
-        if (transform.includes('scale')) {
-            const scaleMatch = transform.match(/scale\(([^)]+)\)/);
-            if (scaleMatch && scaleMatch[1]) {
-                zoomScale = parseFloat(scaleMatch[1]);
-            }
-        }
-        
-        // Calculate translated position with zoom taken into account
-        const x = (event.clientX - rect.left) * scaleX / zoomScale;
-        const y = (event.clientY - rect.top) * scaleY / zoomScale;
+        // Convertir en coordonnées d'image en tenant compte du ratio
+        const x = clickX * scaleX;
+        const y = clickY * scaleY;
 
         const currentKeypoints = keypoints[currentPage] || [];
         const findClosestKeypoint = (x, y) => {
