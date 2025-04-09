@@ -38,7 +38,9 @@ export default function DicomAnnotator() {
         handleCanvasClick: handleKeypointClick,
         drawKeypoints,
         colors: keypointColors,
-        setKeypoints
+        setKeypoints,
+        resetKeypoints,
+        undoLastKeypoint
     } = useKeypoints({ canvasRef, currentPage, selectedLabel: selectedKeypointLabel, keypointSize });
     
     const {
@@ -46,7 +48,8 @@ export default function DicomAnnotator() {
         handleCanvasClick: handleSkeletonClick,
         drawSkeletons,
         colors: skeletonColors,
-        setSkeletons
+        setSkeletons,
+        resetSkeletons
     } = useSkeletons({ canvasRef, currentPage, selectedLabel: selectedSkeletonLabel, keypoints, setKeypoints });
     
     // Zoom functionality
@@ -198,23 +201,6 @@ export default function DicomAnnotator() {
         drawAll(currentPage);
     }, [keypointSize]);
 
-    // Functions to reset keypoints and skeletons
-    const resetKeypoints = () => {
-        console.log('Keypoints avant réinitialisation:', keypoints);
-        const newKeypoints = { ...keypoints };
-        delete newKeypoints[currentPage];
-        console.log('setKeypoints:', setKeypoints);
-        setKeypoints(newKeypoints);
-        clearCanvas();
-        console.log('Keypoints après réinitialisation:', newKeypoints);
-    };
-
-    const resetSkeletons = () => {
-        const newSkeletons = { ...skeletons };
-        delete newSkeletons[currentPage];
-        setSkeletons(newSkeletons);
-        clearCanvas();
-    };
 
     const clearCanvas = () => {
         const canvas = canvasRef.current;
@@ -287,6 +273,13 @@ export default function DicomAnnotator() {
                 <div className="w-full bg-slate-50 rounded p-2 mb-4">
                     <h4 className="text-lg font-bold mb-2 text-center text-indigo-500">Custom Tools</h4>
                     <div className="grid grid-cols-1 gap-2">
+                        {/* Reset Skeletons */}
+                        <button 
+                            onClick={undoLastKeypoint}
+                            className="bg-yellow-500 text-white rounded p-2 text-sm"
+                        >
+                            Reset Skeletons
+                        </button>
                         {/* Reset Keypoints */}
                         <button 
                             onClick={resetKeypoints}

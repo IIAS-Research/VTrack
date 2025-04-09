@@ -121,7 +121,16 @@ export function useSkeletons({ canvasRef, currentPage, selectedLabel, keypoints,
             ctx.lineTo(x2, y2);
             ctx.stroke();
         });
-    };    
+    };
+
+
+    const resetSkeletons = () => {
+        const newSkeletons = { ...skeletons };
+        delete newSkeletons[currentPage];
+        setSkeletons(newSkeletons);
+        clearCanvas();
+    };
+
 
     useEffect(() => {
         drawSkeletons(currentPage);
@@ -132,6 +141,7 @@ export function useSkeletons({ canvasRef, currentPage, selectedLabel, keypoints,
         handleCanvasClick,
         drawSkeletons,
         colors,
-        setSkeletons
+        setSkeletons,
+        resetSkeletons
     };
 }

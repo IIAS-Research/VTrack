@@ -118,13 +118,29 @@ export function useKeypoints({ canvasRef, currentPage, selectedLabel, keypointSi
         drawKeypoints();
     }, [keypoints, currentPage, keypointSize]);
 
+    // Functions to reset keypoints and skeletons
     const resetKeypoints = () => {
+            console.log('Keypoints avant réinitialisation:', keypoints);
+            const newKeypoints = { ...keypoints };
+            delete newKeypoints[currentPage];
+            console.log('setKeypoints:', setKeypoints);
+            setKeypoints(newKeypoints);
+            clearCanvas();
+            console.log('Keypoints après réinitialisation:', newKeypoints);
+        };
+    
+
+    const undoLastKeypoint = () => {
         const newKeypoints = { ...keypoints };
-        delete newKeypoints[currentPage];
+        if (!newKeypoints[currentPage] || newKeypoints[currentPage].length === 0) return;
+    
+        newKeypoints[currentPage].pop(); // Supprimer le dernier point
         setKeypoints(newKeypoints);
         clearCanvas();
+        drawKeypoints(currentPage);
     };
-    
+
+
     const clearCanvas = () => {
         const canvas = canvasRef.current;
         if (canvas) {
@@ -141,6 +157,7 @@ export function useKeypoints({ canvasRef, currentPage, selectedLabel, keypointSi
         setKeypoints,
         screenToImageCoords,
         clearCanvas,
-        resetKeypoints
+        resetKeypoints,
+        undoLastKeypoint
     };
 }
