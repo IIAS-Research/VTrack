@@ -7,6 +7,7 @@ import { SkeletonLabels } from "./components/SkeletonLabels";
 import { ImageNavigator } from "./components/imageNavigator";
 import { ZoomControls } from "./components/ZoomControls";
 import { useAnnotations } from "./hooks/useAnnotations";
+import { Undo2 } from "lucide-react";
 // import { colors } from "cornerstone-core";
 
 export default function DicomAnnotator() {
@@ -45,26 +46,7 @@ export default function DicomAnnotator() {
         undoLastSkeleton,
         colors
     } = useAnnotations({ canvasRef, currentPage, keypointSize, selectedKeypointLabel, selectedSkeletonLabel })
-    // const {
-        // keypoints,
-        // handleCanvasClick: handleKeypointClick,
-        // drawKeypoints,
-        // colors: keypointColors,
-        // setKeypoints,
-        // resetKeypoints,
-        // undoLastKeypoint,
-    // } = useKeypoints({ canvasRef, currentPage, selectedLabel: selectedKeypointLabel, keypointSize, skeletons, setSkeletons });
-    // 
-    // const {
-        // skeletons,
-        // handleCanvasClick: handleSkeletonClick,
-        // drawSkeletons,
-        // colors: skeletonColors,
-        // setSkeletons,
-        // resetSkeletons,
-        // undoLastSkeleton
-    // } = useSkeletons({ canvasRef, currentPage, selectedLabel: selectedSkeletonLabel, keypoints, setKeypoints });
-    
+
     // Zoom functionality
     const {
         zoom,
@@ -199,13 +181,6 @@ export default function DicomAnnotator() {
         setSelectedSkeletonLabel(null); // Deselect skeletons when a keypoint is selected
     };
 
-    // Draw both keypoints and skeletons
-    // const drawAll = (page) => {
-        // clearCanvas();
-        // drawKeypoints(page);
-        // drawSkeletons(page);
-    // };
-
     useEffect(() => {
         drawAll(currentPage);
     }, [keypoints, skeletons, currentPage]);
@@ -256,10 +231,6 @@ export default function DicomAnnotator() {
                     <canvas
                         ref={canvasRef}
                         className={`absolute top-0 left-0 w-full h-full pointer-events-auto ${panEnabled ? 'cursor-grab' : 'cursor-crosshair'}`}
-                        // onClick={(e) => {
-                            // handleKeypointClick(e);
-                            // handleSkeletonClick(e);
-                        // }}
                         onClick={handleCanvasClick}
                         style={{ transformOrigin: '0 0' }}
                     />
@@ -270,7 +241,7 @@ export default function DicomAnnotator() {
             {/* Right panel - Tools */}
             <div className="w-1/3 flex flex-col rounded p-4 h-fit bg-white border border-slate-200 shadow-md">
                 <h3 className="text-center text-2xl font-bold border-b mb-2 pb-2 text-indigo-700">Tools</h3>
-                <div className="mb-4 grid grid-cols-2 gap-4">
+                <div className="mb-4 flex flex-col gap-4">
                     <VesselLabels 
                         title="Vessels - Keypoints"
                         colors={colors}
@@ -278,27 +249,27 @@ export default function DicomAnnotator() {
                         setSelectedLabel={handleKeypointLabelSelect}
                     />
                     <SkeletonLabels 
-                        title="Vessels - Skeletons"
-                        colors={colors}
-                        selectedLabel={selectedSkeletonLabel}
-                        setSelectedSkeletonLabel={handleSkeletonLabelSelect}
+                      selectedLabel={selectedSkeletonLabel}
+                      setSelectedSkeletonLabel={handleSkeletonLabelSelect}
                     />
                 </div>
                 <div className="w-full bg-slate-50 rounded p-2 mb-4">
                     <h4 className="text-lg font-bold mb-2 text-center text-indigo-500">Custom Tools</h4>
                     <div className="grid grid-cols-1 gap-2">
-                        {/* Reset Skeletons */}
+                        {/* Undo Last Keypoint */}
                         <button 
                             onClick={undoLastKeypoint}
-                            className="bg-yellow-500 text-white rounded p-2 text-sm"
+                            className="bg-yellow-500 text-white rounded p-2 text-sm flex items-center justify-center gap-2 w-full"
                         >
+                            <Undo2 size={16} /> 
                             Undo last keypoint
                         </button>
-                        {/* Reset Skeletons */}
+                        {/* Undo Last Skeleton */}
                         <button 
                             onClick={undoLastSkeleton}
-                            className="bg-yellow-500 text-white rounded p-2 text-sm"
+                            className="bg-yellow-500 text-white rounded p-2 text-sm flex items-center justify-center gap-2 w-full"
                         >
+                            <Undo2 size={16} />
                             Undo last Skeleton
                         </button>
                         {/* Reset Keypoints */}
@@ -343,7 +314,6 @@ export default function DicomAnnotator() {
                     </div>
                 </div>
                 <div className="w-full bg-slate-50 rounded p-2">
-                    <h4 className="text-lg font-bold mb-2 text-center text-indigo-500">Zoom & Pan</h4>
                     <div className="flex items-center justify-center mb-2">
                         {dicomLoaded && (
                             <ZoomControls 
@@ -351,8 +321,6 @@ export default function DicomAnnotator() {
                                 zoomIn={zoomIn}
                                 zoomOut={zoomOut}
                                 resetZoom={resetZoom}
-                                panEnabled={panEnabled}
-                                setPanEnabled={setPanEnabled}
                             />
                         )}
                     </div>
