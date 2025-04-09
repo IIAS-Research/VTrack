@@ -1,13 +1,13 @@
 import { useRef, useState, useEffect } from "react";
 import { initializeCornerstoneTools } from "./components/cornerstoneSetup";
 import { useImageLoader } from "./hooks/useImageLoader";
-import { useKeypoints } from "./hooks/useKeypoints";
-import { useSkeletons } from "./hooks/useSkeletons";
 import { useZoom } from "./hooks/useZoom";
 import { VesselLabels } from "./components/VesselLabels";
 import { SkeletonLabels } from "./components/SkeletonLabels";
 import { ImageNavigator } from "./components/imageNavigator";
 import { ZoomControls } from "./components/ZoomControls";
+import { useAnnotations } from "./hooks/useAnnotations";
+// import { colors } from "cornerstone-core";
 
 export default function DicomAnnotator() {
     // Initialize refs
@@ -33,24 +33,37 @@ export default function DicomAnnotator() {
         adjustCanvasSize
     } = useImageLoader({ viewerRef, canvasRef });
     
+
     const {
         keypoints,
-        handleCanvasClick: handleKeypointClick,
-        drawKeypoints,
-        colors: keypointColors,
-        setKeypoints,
-        resetKeypoints,
-        undoLastKeypoint
-    } = useKeypoints({ canvasRef, currentPage, selectedLabel: selectedKeypointLabel, keypointSize });
-    
-    const {
         skeletons,
-        handleCanvasClick: handleSkeletonClick,
-        drawSkeletons,
-        colors: skeletonColors,
-        setSkeletons,
-        resetSkeletons
-    } = useSkeletons({ canvasRef, currentPage, selectedLabel: selectedSkeletonLabel, keypoints, setKeypoints });
+        handleCanvasClick,
+        drawAll,
+        resetKeypoints,
+        resetSkeletons,
+        undoLastKeypoint,
+        undoLastSkeleton,
+        colors
+    } = useAnnotations({ canvasRef, currentPage, keypointSize, selectedKeypointLabel, selectedSkeletonLabel })
+    // const {
+        // keypoints,
+        // handleCanvasClick: handleKeypointClick,
+        // drawKeypoints,
+        // colors: keypointColors,
+        // setKeypoints,
+        // resetKeypoints,
+        // undoLastKeypoint,
+    // } = useKeypoints({ canvasRef, currentPage, selectedLabel: selectedKeypointLabel, keypointSize, skeletons, setSkeletons });
+    // 
+    // const {
+        // skeletons,
+        // handleCanvasClick: handleSkeletonClick,
+        // drawSkeletons,
+        // colors: skeletonColors,
+        // setSkeletons,
+        // resetSkeletons,
+        // undoLastSkeleton
+    // } = useSkeletons({ canvasRef, currentPage, selectedLabel: selectedSkeletonLabel, keypoints, setKeypoints });
     
     // Zoom functionality
     const {
@@ -187,11 +200,11 @@ export default function DicomAnnotator() {
     };
 
     // Draw both keypoints and skeletons
-    const drawAll = (page) => {
-        clearCanvas();
-        drawKeypoints(page);
-        drawSkeletons(page);
-    };
+    // const drawAll = (page) => {
+        // clearCanvas();
+        // drawKeypoints(page);
+        // drawSkeletons(page);
+    // };
 
     useEffect(() => {
         drawAll(currentPage);
@@ -243,10 +256,11 @@ export default function DicomAnnotator() {
                     <canvas
                         ref={canvasRef}
                         className={`absolute top-0 left-0 w-full h-full pointer-events-auto ${panEnabled ? 'cursor-grab' : 'cursor-crosshair'}`}
-                        onClick={(e) => {
-                            handleKeypointClick(e);
-                            handleSkeletonClick(e);
-                        }}
+                        // onClick={(e) => {
+                            // handleKeypointClick(e);
+                            // handleSkeletonClick(e);
+                        // }}
+                        onClick={handleCanvasClick}
                         style={{ transformOrigin: '0 0' }}
                     />
                 </div>
@@ -259,13 +273,13 @@ export default function DicomAnnotator() {
                 <div className="mb-4 grid grid-cols-2 gap-4">
                     <VesselLabels 
                         title="Vessels - Keypoints"
-                        colors={keypointColors}
+                        colors={colors}
                         selectedLabel={selectedKeypointLabel}
                         setSelectedLabel={handleKeypointLabelSelect}
                     />
                     <SkeletonLabels 
                         title="Vessels - Skeletons"
-                        colors={skeletonColors}
+                        colors={colors}
                         selectedLabel={selectedSkeletonLabel}
                         setSelectedSkeletonLabel={handleSkeletonLabelSelect}
                     />
@@ -278,7 +292,14 @@ export default function DicomAnnotator() {
                             onClick={undoLastKeypoint}
                             className="bg-yellow-500 text-white rounded p-2 text-sm"
                         >
-                            Reset Skeletons
+                            Undo last keypoint
+                        </button>
+                        {/* Reset Skeletons */}
+                        <button 
+                            onClick={undoLastSkeleton}
+                            className="bg-yellow-500 text-white rounded p-2 text-sm"
+                        >
+                            Undo last Skeleton
                         </button>
                         {/* Reset Keypoints */}
                         <button 
