@@ -132,14 +132,14 @@ export function useZoom({ canvasRef, viewerRef }) {
         // Désactiver le menu contextuel pour permettre le clic droit
         const handleContextMenu = (e) => e.preventDefault();
         
-        canvas.addEventListener('wheel', handleZoom, { passive: false });
+        canvas.parentElement.addEventListener('wheel', handleZoom, { passive: false });
         canvas.addEventListener('mousedown', handleMouseDown);
         window.addEventListener('mousemove', handleMouseMove);
         window.addEventListener('mouseup', handleMouseUp);
         canvas.addEventListener('contextmenu', handleContextMenu);
         
         return () => {
-            canvas.removeEventListener('wheel', handleZoom);
+            canvas.parentElement.removeEventListener('wheel', handleZoom);
             canvas.removeEventListener('mousedown', handleMouseDown);
             window.removeEventListener('mousemove', handleMouseMove);
             window.removeEventListener('mouseup', handleMouseUp);
