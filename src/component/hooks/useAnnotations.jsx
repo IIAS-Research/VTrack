@@ -53,7 +53,7 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
     // Effect to redraw canvas whenever annotations or relevant view state changes
     useEffect(() => {
         // Need to ensure data structure exists, especially on initial load or page change
-        ensurePageData(currentPage);
+        // ensurePageData(currentPage); // <--- REMOVED: This call caused the infinite loop
         // Call drawAll whenever relevant state updates
         drawAll(currentPage);
         // Dependencies: include all states that should trigger a redraw
