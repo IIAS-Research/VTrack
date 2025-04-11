@@ -16,6 +16,7 @@ export default function DicomAnnotator() {
     const fileInputRef = useRef(null);
     const viewerRef = useRef(null);
     const canvasRef = useRef(null);
+    const prevImagesLengthRef = useRef(0); // Add this ref to track previous image count
     
     // Initialize state
     const [currentPage, setCurrentPage] = useState(1);
@@ -84,6 +85,34 @@ export default function DicomAnnotator() {
     
     // State for pan mode
     const [panEnabled, setPanEnabled] = useState(false);
+
+    // Effect to handle navigation when new images are added
+    useEffect(() => {
+        const currentLength = images.length;
+        const prevLength = prevImagesLengthRef.current;
+
+        // Check if new images have been added (length increased)
+        // We also check prevLength !== 0 to avoid running this logic on the initial load,
+        // assuming initial load correctly sets page 1.
+        // If initial load can result in multiple images, adjust condition if needed.
+        if (currentLength > prevLength) {
+            const lastPageIndex = currentLength; // Page numbers are 1-based
+
+            setCurrentPage(lastPageIndex); // Navigate to the last page
+            resetZoom(); // Reset zoom for the new image
+
+            // Load the newly added last image
+            loadImage(images[lastPageIndex - 1], () => {
+                // Draw annotations for the new current page after the image is loaded
+                 drawAll(lastPageIndex);
+            });
+        }
+
+        // Update the ref *after* comparison for the next render cycle
+        prevImagesLengthRef.current = currentLength;
+
+    // Dependencies: Ensure all functions/state used inside are listed
+    }, [images, setCurrentPage, resetZoom, loadImage, drawAll]);
 
     // Navigation handlers
     const handleNextPage = () => {
