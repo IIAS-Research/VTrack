@@ -132,18 +132,19 @@ export function useZoom({ canvasRef, viewerRef }) {
         // Désactiver le menu contextuel pour permettre le clic droit
         const handleContextMenu = (e) => e.preventDefault();
         
-        canvas.parentElement.addEventListener('wheel', handleZoom, { passive: false });
-        canvas.addEventListener('mousedown', handleMouseDown);
+        const canvas_parent = canvas.parentElement;
+        canvas_parent.addEventListener('wheel', handleZoom, { passive: false });
+        canvas_parent.addEventListener('mousedown', handleMouseDown);
         window.addEventListener('mousemove', handleMouseMove);
         window.addEventListener('mouseup', handleMouseUp);
-        canvas.addEventListener('contextmenu', handleContextMenu);
+        canvas_parent.addEventListener('contextmenu', handleContextMenu);
         
         return () => {
-            canvas.parentElement.removeEventListener('wheel', handleZoom);
-            canvas.removeEventListener('mousedown', handleMouseDown);
+            canvas_parent.removeEventListener('wheel', handleZoom);
+            canvas_parent.removeEventListener('mousedown', handleMouseDown);
             window.removeEventListener('mousemove', handleMouseMove);
             window.removeEventListener('mouseup', handleMouseUp);
-            canvas.removeEventListener('contextmenu', handleContextMenu);
+            canvas_parent.removeEventListener('contextmenu', handleContextMenu);
         };
     }, [handleZoom, handleMouseDown, handleMouseMove, handleMouseUp, canvasRef]);
 
