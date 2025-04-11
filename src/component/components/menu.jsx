@@ -6,13 +6,35 @@ const Menu = () => {
     const isInstructionsPage = location.pathname === '/instructions';
 
     return (
-        <div className="fixed w-full flex justify-between items-center py-4 px-5 z-10 bg-white shadow-md">
-            <h1 className="text-xl font-bold">Vessels Annotator</h1>
-            {isInstructionsPage ? (
-                <Link to="/" className="text-lg">Annotator</Link>
-            ) : (
-                <Link to="/instructions" className="text-lg">Instructions</Link>
-            )}
+        <div className="fixed w-full flex justify-between items-center py-3 px-6 z-10 bg-white shadow-lg border-b border-gray-100">
+            <div className="flex items-center">
+                <h1 className="text-2xl font-bold text-indigo-700">
+                    <span className="mr-2">🔬</span>
+                    Vessels Annotator
+                </h1>
+            </div>
+            
+            <div className="flex items-center gap-4">
+                {isInstructionsPage ? (
+                    <Link 
+                        to="/" 
+                        className="relative px-5 py-2 font-medium text-indigo-700 group"
+                    >
+                        <span className="absolute inset-0 w-full h-full transition duration-200 ease-out transform translate-x-1 translate-y-1 bg-indigo-200 group-hover:-translate-x-0 group-hover:-translate-y-0 rounded"></span>
+                        <span className="absolute inset-0 w-full h-full bg-white border-2 border-indigo-700 group-hover:bg-indigo-100 rounded"></span>
+                        <span className="relative text-lg">Annotator</span>
+                    </Link>
+                ) : (
+                    <Link 
+                        to="/instructions" 
+                        className="relative px-5 py-2 font-medium text-indigo-700 group"
+                    >
+                        <span className="absolute inset-0 w-full h-full transition duration-200 ease-out transform translate-x-1 translate-y-1 bg-indigo-200 group-hover:-translate-x-0 group-hover:-translate-y-0 rounded"></span>
+                        <span className="absolute inset-0 w-full h-full bg-white border-2 border-indigo-700 group-hover:bg-indigo-100 rounded"></span>
+                        <span className="relative text-lg">Instructions</span>
+                    </Link>
+                )}
+            </div>
         </div>
     );
 };

@@ -1,12 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedKeypointLabel, selectedSkeletonLabel, selectedBboxLabel }) {
+    // State structure: { pageNum: { points: [], history: [] } } etc.
     const [keypoints, setKeypoints] = useState({});
     const [skeletons, setSkeletons] = useState({});
     const [bboxes, setBboxes] = useState({});
+
     const [startPoint, setStartPoint] = useState(null);
     const [isDrawingBbox, setIsDrawingBbox] = useState(false);
     const [bboxStart, setBboxStart] = useState(null);
+    const lastClickTimestampRef = useRef(0); // Ref to store the last click time
 
     const colors = {
         ICA: "#FFADAD", MCA1: "#9BB1FF", MCA2: "#A0E7E5", MCA3: "#FFD6A5",
@@ -26,6 +29,36 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
         "Occlusion": "#FF0000"                     // rouge pour les occlusions
     };
 
+    // Helper to initialize page data if it doesn't exist
+    const ensurePageData = (page) => {
+        setKeypoints(prev => ({
+            ...prev,
+            [page]: prev[page] || { points: [], history: [] }
+        }));
+        setSkeletons(prev => ({
+            ...prev,
+            [page]: prev[page] || { segments: [], history: [] }
+        }));
+        setBboxes(prev => ({
+            ...prev,
+            [page]: prev[page] || { boxes: [], history: [] }
+        }));
+    };
+
+    // Initialize data for the current page when it changes
+    useEffect(() => {
+        ensurePageData(currentPage);
+    }, [currentPage]);
+
+    // Effect to redraw canvas whenever annotations or relevant view state changes
+    useEffect(() => {
+        // Need to ensure data structure exists, especially on initial load or page change
+        // ensurePageData(currentPage); // <--- REMOVED: This call caused the infinite loop
+        // Call drawAll whenever relevant state updates
+        drawAll(currentPage);
+        // Dependencies: include all states that should trigger a redraw
+    }, [keypoints, skeletons, bboxes, currentPage, keypointSize, isDrawingBbox, bboxStart, canvasRef.current]); // Added canvasRef.current dependency
+
     const clearCanvas = () => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -37,9 +70,10 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
         const canvas = canvasRef.current;
         if (!canvas) return;
         const ctx = canvas.getContext("2d");
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // Clear canvas is now handled by drawAll
+        // ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        const points = keypoints[page] || [];
+        const points = keypoints[page]?.points || []; // Access points array
         points.forEach(({ x, y, label, parent }) => {
             ctx.fillStyle = colors[label];
             ctx.beginPath();
@@ -62,7 +96,7 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
         if (!canvas) return;
         const ctx = canvas.getContext("2d");
 
-        const segments = skeletons[page] || [];
+        const segments = skeletons[page]?.segments || []; // Access segments array
         segments.forEach(({ x1, y1, label1, x2, y2, label2 }) => {
             ctx.strokeStyle = colors[label2];
             ctx.beginPath();
@@ -77,7 +111,7 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
         if (!canvas) return;
         const ctx = canvas.getContext("2d");
 
-        const boxes = bboxes[page] || [];
+        const boxes = bboxes[page]?.boxes || []; // Access boxes array
         boxes.forEach(({ x1, y1, x2, y2, label }) => {
             ctx.strokeStyle = colors[label];
             ctx.lineWidth = 2;
@@ -109,12 +143,34 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
         drawBboxes(page);
     };
 
+    // Function to clear redo history for a specific type
+    const clearHistory = (type, page = currentPage) => {
+        if (type === 'keypoint') {
+            setKeypoints(prev => ({
+                ...prev,
+                [page]: { ...prev[page], history: [] }
+            }));
+        } else if (type === 'skeleton') {
+            setSkeletons(prev => ({
+                ...prev,
+                [page]: { ...prev[page], history: [] }
+            }));
+        } else if (type === 'bbox') {
+             setBboxes(prev => ({
+                ...prev,
+                [page]: { ...prev[page], history: [] }
+            }));
+        }
+    };
+
     const handleCanvasClick = (event) => {
+
         // Si aucun mode n'est sélectionné, on ne fait rien
         if (!selectedKeypointLabel && !selectedSkeletonLabel && !selectedBboxLabel) return;
 
         const canvas = canvasRef.current;
         if (!canvas) return;
+        ensurePageData(currentPage); // Ensure data exists
 
         const rect = canvas.getBoundingClientRect();
         const scaleX = canvas.width / rect.width;
@@ -125,22 +181,45 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
 
         // Gestion des keypoints (vaisseaux)
         if (selectedKeypointLabel) {
-            const newKeypoints = { ...keypoints };
-            if (!newKeypoints[currentPage]) newKeypoints[currentPage] = [];
+            console.log(`Adding keypoint for label: ${selectedKeypointLabel}`); // Log which label is active
+            clearHistory('keypoint'); // Clear redo history on new action
+            clearHistory('skeleton'); // Adding a keypoint might invalidate skeleton redo? (For safety)
 
-            const currentList = newKeypoints[currentPage];
-            const last = currentList.filter(k => k.label === selectedKeypointLabel).slice(-1)[0];
-            const parent = last || null;
+            // --- Refinement: Calculate parent and new point *before* the updater --- 
+            const currentPoints = keypoints[currentPage]?.points || [];
+            const lastPointOfLabel = currentPoints.filter(k => k.label === selectedKeypointLabel).slice(-1)[0];
+            const parent = lastPointOfLabel || null;
+            const newPoint = { x, y, label: selectedKeypointLabel, parent };
+            // --- End Refinement ---
 
-            currentList.push({ x, y, label: selectedKeypointLabel, parent });
-            setKeypoints(newKeypoints);
-            drawAll();
+            setKeypoints(prev => {
+                const now = event.timeStamp;
+                const timeSinceLastClick = now - lastClickTimestampRef.current;
+
+                // Debounce: If click is too soon (less than 10ms), ignore it
+                if (timeSinceLastClick < 10) {
+                    console.log(`Click ignored (debounce ${timeSinceLastClick}ms)`);
+                    return prev;
+                }
+
+                // Update last click time *before* proceeding
+                lastClickTimestampRef.current = now;
+
+                const newKeypoints = { ...prev };
+                // Ensure the page data structure exists within the state object
+                const pageData = newKeypoints[currentPage] || { points: [], history: [] }; 
+                // Add the pre-calculated new point
+                pageData.points = [...pageData.points, newPoint]; 
+                newKeypoints[currentPage] = pageData;
+                return newKeypoints;
+            });
+            // drawAll(); // Removed - useEffect handles this
             return;
         }
 
         // Gestion des squelettes
         if (selectedSkeletonLabel) {
-            const kp = keypoints[currentPage] || [];
+            const kp = keypoints[currentPage]?.points || [];
 
             const closest = kp.reduce((closest, candidate) => {
                 const dist = Math.hypot(candidate.x - x, candidate.y - y);
@@ -152,54 +231,86 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
 
             if (!startPoint) {
                 setStartPoint(closest);
+                // No drawAll needed here, just setting start point
             } else {
-                const newSkeletons = { ...skeletons };
-                if (!newSkeletons[currentPage]) newSkeletons[currentPage] = [];
+                clearHistory('skeleton'); // Clear redo history on new action
+                 setSkeletons(prev => {
+                    const now = event.timeStamp;
+                    const timeSinceLastClick = now - lastClickTimestampRef.current;
+            
+                    // Debounce: If click is too soon (less than 10ms), ignore it
+                    if (timeSinceLastClick < 10) {
+                        console.log(`Click ignored (debounce ${timeSinceLastClick}ms)`);
+                        return prev;
+                    }
+            
+                    // Update last click time *before* proceeding
+                    lastClickTimestampRef.current = now;
 
-                newSkeletons[currentPage].push({
-                    x1: startPoint.x, y1: startPoint.y, label1: startPoint.label,
-                    x2: closest.x, y2: closest.y, label2: closest.label
+                    const newSkeletons = { ...prev };
+                    const pageData = newSkeletons[currentPage];
+                    pageData.segments = [...pageData.segments, {
+                        x1: startPoint.x, y1: startPoint.y, label1: startPoint.label,
+                        x2: closest.x, y2: closest.y, label2: closest.label
+                    }];
+                    return newSkeletons;
                 });
 
-                setSkeletons(newSkeletons);
                 setStartPoint(null);
-                drawAll();
+                // drawAll(); // Removed - useEffect handles this
             }
             return;
         }
 
         // Gestion des Bbox (uniquement pour les occlusions)
         if (selectedBboxLabel === "Occlusion") {
+            console.log("Handling Bbox click"); // Log bbox handling
             if (!isDrawingBbox) {
                 setIsDrawingBbox(true);
                 setBboxStart({ x, y, width: 0, height: 0 });
+                // No drawAll needed here, starting bbox draw
             } else {
-                const newBboxes = { ...bboxes };
-                if (!newBboxes[currentPage]) newBboxes[currentPage] = [];
+                clearHistory('bbox'); // Clear redo history on new action
+                setBboxes(prev => {
+                    const now = event.timeStamp;
+                    const timeSinceLastClick = now - lastClickTimestampRef.current;
+            
+                    // Debounce: If click is too soon (less than 10ms), ignore it
+                    if (timeSinceLastClick < 10) {
+                        console.log(`Click ignored (debounce ${timeSinceLastClick}ms)`);
+                        return prev;
+                    }
+            
+                    // Update last click time *before* proceeding
+                    lastClickTimestampRef.current = now;
 
-                const startX = Math.min(bboxStart.x, x);
-                const startY = Math.min(bboxStart.y, y);
-                const endX = Math.max(bboxStart.x, x);
-                const endY = Math.max(bboxStart.y, y);
+                    const newBboxes = { ...prev };
+                    const pageData = newBboxes[currentPage];
 
-                newBboxes[currentPage].push({
-                    x1: startX,
-                    y1: startY,
-                    x2: endX,
-                    y2: endY,
-                    label: "Occlusion"
+                    const startX = Math.min(bboxStart.x, x);
+                    const startY = Math.min(bboxStart.y, y);
+                    const endX = Math.max(bboxStart.x, x);
+                    const endY = Math.max(bboxStart.y, y);
+
+                    pageData.boxes = [...pageData.boxes, {
+                        x1: startX,
+                        y1: startY,
+                        x2: endX,
+                        y2: endY,
+                        label: "Occlusion"
+                    }];
+                    return newBboxes;
                 });
 
-                setBboxes(newBboxes);
                 setIsDrawingBbox(false);
                 setBboxStart(null);
-                drawAll();
+                // drawAll(); // Removed - useEffect handles this
             }
         }
     };
 
     const handleMouseMove = (event) => {
-        if (!isDrawingBbox || !bboxStart) return;
+        if (!isDrawingBbox || !bboxStart || selectedBboxLabel !== "Occlusion") return; // Ensure bbox mode
 
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -211,126 +322,239 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
         const x = (event.clientX - rect.left) * scaleX;
         const y = (event.clientY - rect.top) * scaleY;
 
-        setBboxStart({
-            ...bboxStart,
-            width: x - bboxStart.x,
-            height: y - bboxStart.y
-        });
+        // Update the temporary drawing dimensions, but don't save yet
+        // This state update *will* trigger the useEffect and drawAll
+        setBboxStart(prev => ({
+            ...prev,
+            currentX: x, // Store current mouse position for drawing
+            currentY: y
+        }));
 
-        drawAll();
+        // Redraw to show the rectangle being dragged
+        // drawAll(); // Removed - useEffect handles this
+
+        // Draw the temporary rectangle being created
+        // This part needs to stay to show the rubber band effect *during* the drag
+        // but it should happen *after* the main drawAll call from useEffect updates the canvas
+        // So, let's move this drawing logic into the useEffect as well, conditionally
+        // UPDATE: It's actually better to keep this immediate draw for responsiveness.
+        // The useEffect will clear and redraw everything, and then this temporary
+        // rect will be drawn over it immediately on mouse move.
+        const ctx = canvas.getContext("2d");
+        ctx.strokeStyle = colors["Occlusion"];
+        ctx.lineWidth = 2;
+        // Use currentX/currentY from state if available, otherwise use event's x/y
+        const currentX = bboxStart?.currentX ?? x;
+        const currentY = bboxStart?.currentY ?? y;
+        ctx.strokeRect(bboxStart.x, bboxStart.y, currentX - bboxStart.x, currentY - bboxStart.y);
     };
 
     const undoLastKeypoint = () => {
-        const newKeypoints = { ...keypoints };
-        const list = newKeypoints[currentPage];
-        if (!list || list.length === 0) return;
+        ensurePageData(currentPage);
+        setKeypoints(prev => {
+            const newKeypoints = { ...prev };
+            const pageData = newKeypoints[currentPage];
+            if (!pageData || pageData.points.length === 0) return prev; // No points to undo
 
-        const removed = list.pop();
+            const points = [...pageData.points];
+            const history = [...pageData.history];
+            const removedPoint = points.pop();
 
-        const newSkeletons = { ...skeletons };
-        if (newSkeletons[currentPage]) {
-            newSkeletons[currentPage] = newSkeletons[currentPage].filter(s =>
-                !(s.x1 === removed.x && s.y1 === removed.y && s.label1 === removed.label) &&
-                !(s.x2 === removed.x && s.y2 === removed.y && s.label2 === removed.label)
-            );
-        }
+            let undoneSkeletons = []; // Store skeletons removed due to this keypoint undo
 
-        setKeypoints(newKeypoints);
-        setSkeletons(newSkeletons);
-        drawAll();
+             // Remove related skeletons and store them
+            setSkeletons(prevSkel => {
+                const newSkeletons = { ...prevSkel };
+                const skelPageData = newSkeletons[currentPage];
+                if (!skelPageData) return prevSkel; // No skeleton data for this page
+
+                const currentSegments = skelPageData.segments || [];
+                const remainingSegments = [];
+                
+                currentSegments.forEach(s => {
+                    const isConnected = (s.x1 === removedPoint.x && s.y1 === removedPoint.y && s.label1 === removedPoint.label) ||
+                                      (s.x2 === removedPoint.x && s.y2 === removedPoint.y && s.label2 === removedPoint.label);
+                    if (isConnected) {
+                        undoneSkeletons.push(s);
+                    } else {
+                        remainingSegments.push(s);
+                    }
+                });
+
+                // Only update if skeletons were actually removed
+                if (undoneSkeletons.length > 0) {
+                    // Note: We are NOT adding these to skeleton history here.
+                    // They are linked to the keypoint history instead.
+                     newSkeletons[currentPage] = { ...skelPageData, segments: remainingSegments };
+                     return newSkeletons;
+                }
+                return prevSkel; // No change to skeletons
+            });
+
+            // Push the keypoint and its associated undone skeletons to history
+            history.push({ ...removedPoint, undoneSkeletons });
+            newKeypoints[currentPage] = { points, history };
+
+            return newKeypoints;
+        });
+    };
+
+     const redoLastKeypoint = () => {
+        ensurePageData(currentPage);
+        setKeypoints(prev => {
+            const newKeypoints = { ...prev };
+            const pageData = newKeypoints[currentPage];
+            if (!pageData || pageData.history.length === 0) return prev; // No history to redo
+
+            const points = [...pageData.points];
+            const history = [...pageData.history];
+            const restoredHistoryEntry = history.pop();
+            const { undoneSkeletons, ...restoredPoint } = restoredHistoryEntry; // Separate point from its skeletons
+
+            points.push(restoredPoint);
+            newKeypoints[currentPage] = { points, history };
+
+             // Restore related skeletons if any were stored
+            if (undoneSkeletons && undoneSkeletons.length > 0) {
+                 setSkeletons(prevSkel => {
+                    const newSkeletons = { ...prevSkel };
+                    const skelPageData = newSkeletons[currentPage];
+                    if (!skelPageData) return prevSkel; // Should exist if keypoint existed
+
+                    // Add stored skeletons back to segments. Handle potential duplicates just in case.
+                    const currentSegments = skelPageData.segments || [];
+                    const restoredSegmentSet = new Set(currentSegments.map(s => JSON.stringify(s)));
+                    undoneSkeletons.forEach(skel => {
+                        const skelString = JSON.stringify(skel);
+                        if (!restoredSegmentSet.has(skelString)) {
+                            currentSegments.push(skel);
+                            restoredSegmentSet.add(skelString); // Add to set to prevent duplicates within the undoneSkeletons array itself
+                        }
+                    });
+                    
+                    // Clear skeleton history as this complex redo invalidates it
+                    newSkeletons[currentPage] = { ...skelPageData, segments: currentSegments, history: [] }; 
+                    return newSkeletons;
+                 });
+            } else {
+                // If no skeletons were associated, still clear skeleton history
+                clearHistory('skeleton');
+            }
+
+            return newKeypoints;
+        });
     };
 
     const undoLastSkeleton = () => {
-        const newSkeletons = { ...skeletons };
-        if (!newSkeletons[currentPage] || newSkeletons[currentPage].length === 0) return;
+        ensurePageData(currentPage);
+        setSkeletons(prev => {
+            const newSkeletons = { ...prev };
+            const pageData = newSkeletons[currentPage];
+            if (!pageData || pageData.segments.length === 0) return prev; // No segments to undo
 
-        const lastSkeleton = newSkeletons[currentPage].pop();
-        
-        // Mise à jour des relations parentales
-        const newKeypoints = { ...keypoints };
-        const currentKps = newKeypoints[currentPage];
-        
-        if (currentKps) {
-            const indexSecond = currentKps.findIndex(kp =>
-                kp.x === lastSkeleton.x2 && kp.y === lastSkeleton.y2 && kp.label === lastSkeleton.label2
-            );
-            
-            if (indexSecond !== -1) {
-                if (Array.isArray(currentKps[indexSecond].parent)) {
-                    // Si c'est un tableau de parents, on retire le parent correspondant
-                    currentKps[indexSecond].parent = currentKps[indexSecond].parent.filter(p =>
-                        !(p.x === lastSkeleton.x1 && p.y === lastSkeleton.y1 && p.label === lastSkeleton.label1)
-                    );
-                    
-                    // Si il ne reste qu'un seul parent, on le transforme en objet simple
-                    if (currentKps[indexSecond].parent.length === 1) {
-                        currentKps[indexSecond].parent = currentKps[indexSecond].parent[0];
-                    }
-                } else if (currentKps[indexSecond].parent) {
-                    // Si c'est un seul parent et que c'est celui qu'on retire
-                    const parent = currentKps[indexSecond].parent;
-                    if (parent.x === lastSkeleton.x1 && parent.y === lastSkeleton.y1 && parent.label === lastSkeleton.label1) {
-                        currentKps[indexSecond].parent = null;
-                    }
-                }
-            }
-        }
+            const segments = [...pageData.segments];
+            const history = [...pageData.history];
+            const removedSegment = segments.pop();
+            history.push(removedSegment);
 
-        setKeypoints(newKeypoints);
-        setSkeletons(newSkeletons);
-        drawAll();
+            newSkeletons[currentPage] = { segments, history };
+            return newSkeletons;
+        });
     };
 
-    const resetKeypoints = () => {
-        const newKeypoints = { ...keypoints };
-        delete newKeypoints[currentPage];
+     const redoLastSkeleton = () => {
+        ensurePageData(currentPage);
+         setSkeletons(prev => {
+            const newSkeletons = { ...prev };
+            const pageData = newSkeletons[currentPage];
+            if (!pageData || pageData.history.length === 0) return prev; // No history to redo
 
-        const newSkeletons = { ...skeletons };
-        if (newSkeletons[currentPage]) {
-            const points = keypoints[currentPage] || [];
-            const coordsSet = new Set(points.map(p => `${p.x}-${p.y}-${p.label}`));
-            newSkeletons[currentPage] = newSkeletons[currentPage].filter(s =>
-                !coordsSet.has(`${s.x1}-${s.y1}-${s.label1}`) &&
-                !coordsSet.has(`${s.x2}-${s.y2}-${s.label2}`)
-            );
-        }
+            const segments = [...pageData.segments];
+            const history = [...pageData.history];
+            const restoredSegment = history.pop();
+            segments.push(restoredSegment);
 
-        setKeypoints(newKeypoints);
-        setSkeletons(newSkeletons);
-        drawAll();
-    };
-
-    const resetSkeletons = () => {
-        const newSkeletons = { ...skeletons };
-        delete newSkeletons[currentPage];
-        setSkeletons(newSkeletons);
-        drawAll();
+            newSkeletons[currentPage] = { segments, history };
+            return newSkeletons;
+        });
     };
 
     const undoLastBbox = () => {
-        const newBboxes = { ...bboxes };
-        if (!newBboxes[currentPage] || newBboxes[currentPage].length === 0) return;
+        ensurePageData(currentPage);
+        setBboxes(prev => {
+            const newBboxes = { ...prev };
+            const pageData = newBboxes[currentPage];
+            if (!pageData || pageData.boxes.length === 0) return prev; // No boxes to undo
 
-        newBboxes[currentPage].pop();
-        setBboxes(newBboxes);
-        drawAll();
+            const boxes = [...pageData.boxes];
+            const history = [...pageData.history];
+            const removedBox = boxes.pop();
+            history.push(removedBox);
+
+            newBboxes[currentPage] = { boxes, history };
+            return newBboxes;
+        });
     };
 
-    const resetBboxes = () => {
-        const newBboxes = { ...bboxes };
-        delete newBboxes[currentPage];
-        setBboxes(newBboxes);
-        drawAll();
+     const redoLastBbox = () => {
+        ensurePageData(currentPage);
+         setBboxes(prev => {
+            const newBboxes = { ...prev };
+            const pageData = newBboxes[currentPage];
+            if (!pageData || pageData.history.length === 0) return prev; // No history to redo
+
+            const boxes = [...pageData.boxes];
+            const history = [...pageData.history];
+            const restoredBox = history.pop();
+            boxes.push(restoredBox);
+
+            newBboxes[currentPage] = { boxes, history };
+            return newBboxes;
+        });
     };
 
-    useEffect(() => {
-        drawAll();
-    }, [keypoints, skeletons, bboxes, currentPage, keypointSize, isDrawingBbox, bboxStart]);
+    const resetKeypoints = () => {
+        ensurePageData(currentPage);
+        setKeypoints(prev => ({
+            ...prev,
+            [currentPage]: { points: [], history: [] } // Clear points and history
+        }));
+         // Also reset related skeletons? Yes, seems logical.
+        resetSkeletons();
+    };
 
+    const resetSkeletons = () => {
+        ensurePageData(currentPage);
+        setSkeletons(prev => ({
+            ...prev,
+            [currentPage]: { segments: [], history: [] } // Clear segments and history
+        }));
+        setStartPoint(null); // Reset skeleton drawing start point
+    };
+
+     const resetBboxes = () => {
+        ensurePageData(currentPage);
+         setBboxes(prev => ({
+            ...prev,
+            [currentPage]: { boxes: [], history: [] } // Clear boxes and history
+        }));
+        setIsDrawingBbox(false); // Reset bbox drawing state
+        setBboxStart(null);
+    };
+
+    // Helpers to check if redo is possible
+    const canRedoKeypoint = keypoints[currentPage]?.history?.length > 0;
+    const canRedoSkeleton = skeletons[currentPage]?.history?.length > 0;
+    const canRedoBbox = bboxes[currentPage]?.history?.length > 0;
+
+    // Export functions and state
     return {
-        keypoints,
-        skeletons,
-        bboxes,
+        keypoints: keypoints[currentPage]?.points || [], // Expose only points
+        skeletons: skeletons[currentPage]?.segments || [], // Expose only segments
+        bboxes: bboxes[currentPage]?.boxes || [], // Expose only boxes
+        setKeypoints: (data) => setKeypoints(prev => ({ ...prev, [currentPage]: { points: data, history: [] } })), // Update requires resetting history
+        setSkeletons: (data) => setSkeletons(prev => ({ ...prev, [currentPage]: { segments: data, history: [] } })),
+        setBboxes: (data) => setBboxes(prev => ({ ...prev, [currentPage]: { boxes: data, history: [] } })),
         handleCanvasClick,
         handleMouseMove,
         drawAll,
@@ -340,9 +564,12 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
         undoLastKeypoint,
         undoLastSkeleton,
         undoLastBbox,
-        setKeypoints,
-        setSkeletons,
-        setBboxes,
+        redoLastKeypoint,   // Export redo function
+        redoLastSkeleton,   // Export redo function
+        redoLastBbox,       // Export redo function
+        canRedoKeypoint,    // Export checker function
+        canRedoSkeleton,    // Export checker function
+        canRedoBbox,        // Export checker function
         colors
     };
 }

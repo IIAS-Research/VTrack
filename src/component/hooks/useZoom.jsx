@@ -14,48 +14,56 @@ export function useZoom({ canvasRef, viewerRef }) {
 
     // Fonctions pour zoomer manuellement
     const zoomIn = useCallback(() => {
+        const viewer = viewerRef.current;
+        if (!viewer) return;
+
         const zoomFactor = 1.1;
         const newZoom = Math.min(zoom * zoomFactor, 5);
+
+        const viewerCenterX = viewer.offsetWidth / 2;
+        const viewerCenterY = viewer.offsetHeight / 2;
+
+        // Calculate the new pan offset to keep the center point stable
+        const newPanOffsetX = panOffset.x + viewerCenterX * (1/newZoom - 1/zoom);
+        const newPanOffsetY = panOffset.y + viewerCenterY * (1/newZoom - 1/zoom);
+
         setZoom(newZoom);
-    }, [zoom]);
+        setPanOffset({ x: newPanOffsetX, y: newPanOffsetY });
+
+    }, [zoom, panOffset, viewerRef]);
 
     const zoomOut = useCallback(() => {
+        const viewer = viewerRef.current;
+        if (!viewer) return;
+
         const zoomFactor = 1.1;
         const newZoom = Math.max(zoom / zoomFactor, 0.5);
+
+        const viewerCenterX = viewer.offsetWidth / 2;
+        const viewerCenterY = viewer.offsetHeight / 2;
+
+        // Calculate the new pan offset to keep the center point stable
+        const newPanOffsetX = panOffset.x + viewerCenterX * (1/newZoom - 1/zoom);
+        const newPanOffsetY = panOffset.y + viewerCenterY * (1/newZoom - 1/zoom);
+        
         setZoom(newZoom);
-    }, [zoom]);
+        setPanOffset({ x: newPanOffsetX, y: newPanOffsetY });
+
+    }, [zoom, panOffset, viewerRef]);
 
     // Fonction pour gérer le zoom avec la molette // Ajout 
     const handleZoom = useCallback((event) => {
         event.preventDefault();
         
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        
-        const rect = canvas.getBoundingClientRect();
-        
-        // Position de la souris par rapport au canvas
-        const mouseX = event.clientX - rect.left;
-        const mouseY = event.clientY - rect.top;
-        
-        // Position de la souris dans les coordonnées de l'image (avant zoom)
-        const imageX = mouseX / zoom - panOffset.x;
-        const imageY = mouseY / zoom - panOffset.y;
-        
-        // Calculer le nouveau niveau de zoom
         const delta = -Math.sign(event.deltaY);
-        const zoomFactor = 1.1;
-        const newZoom = delta > 0 
-            ? Math.min(zoom * zoomFactor, 5) 
-            : Math.max(zoom / zoomFactor, 0.5);
         
-        // Calculer le nouveau décalage pour maintenir la position de la souris
-        const newOffsetX = mouseX / newZoom - imageX;
-        const newOffsetY = mouseY / newZoom - imageY;
-        
-        setZoom(newZoom);
-        setPanOffset({ x: newOffsetX, y: newOffsetY });
-    }, [zoom, panOffset]);
+        if (delta > 0) {
+            zoomIn(); // Simulate click on zoom in
+        } else if (delta < 0) {
+            zoomOut(); // Simulate click on zoom out
+        }
+        // Removed previous complex zoom logic
+    }, [zoomIn, zoomOut]); // Depend on zoomIn and zoomOut
 
 
     // Fonction pour commencer le déplacement (clic droit) // Ajout 
@@ -124,18 +132,19 @@ export function useZoom({ canvasRef, viewerRef }) {
         // Désactiver le menu contextuel pour permettre le clic droit
         const handleContextMenu = (e) => e.preventDefault();
         
-        canvas.addEventListener('wheel', handleZoom, { passive: false });
-        canvas.addEventListener('mousedown', handleMouseDown);
+        const canvas_parent = canvas.parentElement;
+        canvas_parent.addEventListener('wheel', handleZoom, { passive: false });
+        canvas_parent.addEventListener('mousedown', handleMouseDown);
         window.addEventListener('mousemove', handleMouseMove);
         window.addEventListener('mouseup', handleMouseUp);
-        canvas.addEventListener('contextmenu', handleContextMenu);
+        canvas_parent.addEventListener('contextmenu', handleContextMenu);
         
         return () => {
-            canvas.removeEventListener('wheel', handleZoom);
-            canvas.removeEventListener('mousedown', handleMouseDown);
+            canvas_parent.removeEventListener('wheel', handleZoom);
+            canvas_parent.removeEventListener('mousedown', handleMouseDown);
             window.removeEventListener('mousemove', handleMouseMove);
             window.removeEventListener('mouseup', handleMouseUp);
-            canvas.removeEventListener('contextmenu', handleContextMenu);
+            canvas_parent.removeEventListener('contextmenu', handleContextMenu);
         };
     }, [handleZoom, handleMouseDown, handleMouseMove, handleMouseUp, canvasRef]);
 

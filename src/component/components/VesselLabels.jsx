@@ -17,7 +17,7 @@ export function VesselLabels({ title, colors, selectedLabel, setSelectedLabel })
 
     return (
         <div className="... w-full ...">
-            <h4 className="text-lg font-bold mb-2 text-center text-indigo-500">{title}</h4>
+            {title && <h4 className="text-lg font-bold mb-2 text-center text-indigo-500">{title}</h4>}
 
             {/* Grille horizontale */}
             <div className="flex flex-row gap-4 justify-between">
@@ -63,7 +63,7 @@ export function VesselLabels({ title, colors, selectedLabel, setSelectedLabel })
                 onClick={() => setSelectedLabel(null)}
                 className={`mt-2 px-2 py-1 rounded w-full ${selectedLabel === null ? 'bg-indigo-500 text-white' : 'bg-indigo-100 text-indigo-500'}`}
             >
-                Aucune sélection
+                No selection
             </button>
         </div>
     );

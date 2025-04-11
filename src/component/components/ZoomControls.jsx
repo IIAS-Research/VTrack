@@ -1,27 +1,37 @@
 import React from "react";
-import { ZoomIn, ZoomOut } from "lucide-react";
+import { ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
 
 export function ZoomControls({ zoom, zoomIn, zoomOut, resetZoom }) {
   return (
-    <div className="flex flex-col bg-slate-50 rounded p-2">
-      <h4 className="text-lg font-bold mb-2 text-center text-indigo-500">Zoom</h4>
-      <div className="flex items-center justify-center mb-2">
+    <div className="flex flex-col rounded-xl overflow-hidden shadow-sm border border-indigo-100 bg-gradient-to-b from-white to-indigo-50">
+      <h4 className="text-lg font-bold py-2 text-center text-indigo-700 border-b border-indigo-100 bg-white">🔍 Zoom</h4>
+      <div className="flex items-center justify-between p-3">
         <button
           onClick={zoomOut}
-          className="w-8 h-8 flex items-center justify-center rounded-l bg-indigo-50 hover:bg-indigo-100 border border-r-0 border-indigo-200"
+          className="w-9 h-9 flex items-center justify-center rounded-lg bg-white hover:bg-indigo-100 border border-indigo-200 shadow-sm transition-all duration-200"
           title="Zoom out"
         >
-          <ZoomOut size={16} />
+          <ZoomOut size={18} className="text-indigo-600" />
         </button>
-        <div className="px-2 py-1 border-y border-indigo-200 bg-white">
+        
+        <div className="px-3 py-1.5 rounded-lg border border-indigo-200 bg-white font-medium text-indigo-800 shadow-sm">
           {Math.round(zoom * 100)}%
         </div>
+        
         <button
           onClick={zoomIn}
-          className="w-8 h-8 flex items-center justify-center rounded-r bg-indigo-50 hover:bg-indigo-100 border border-indigo-200"
+          className="w-9 h-9 flex items-center justify-center rounded-lg bg-white hover:bg-indigo-100 border border-indigo-200 shadow-sm transition-all duration-200"
           title="Zoom in"
         >
-          <ZoomIn size={16} />
+          <ZoomIn size={18} className="text-indigo-600" />
+        </button>
+        
+        <button
+          onClick={resetZoom}
+          className="w-9 h-9 flex items-center justify-center rounded-lg bg-white hover:bg-indigo-100 border border-indigo-200 shadow-sm transition-all duration-200"
+          title="Reset zoom"
+        >
+          <RotateCcw size={18} className="text-indigo-600" />
         </button>
       </div>
     </div>
