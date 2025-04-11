@@ -3,7 +3,7 @@ import React from "react";
 export function BboxLabels({ title, colors, selectedLabel, setSelectedLabel }) {
     return (
         <div className="flex flex-col items-center w-full">
-            <h5 className="text-sm font-semibold mb-1 text-slate-600 text-center">{title}</h5>
+            {title && <h5 className="text-sm font-semibold mb-1 text-slate-600 text-center">{title}</h5>}
             <button
                 onClick={() => setSelectedLabel("Occlusion")}
                 className={`px-3 py-1 rounded ${
@@ -17,4 +17,4 @@ export function BboxLabels({ title, colors, selectedLabel, setSelectedLabel }) {
             </button>
         </div>
     );
-} 
+}

@@ -11,7 +11,7 @@ export function ImageNavigator({
     chooseImageButton
 }) {
     return (
-        <div className="mt-6 w-full flex justify-center items-center gap-3">
+        <div className="w-full flex justify-center items-center gap-3">
             <button 
                 onClick={handlePreviousPage} 
                 disabled={currentPage === 1} 

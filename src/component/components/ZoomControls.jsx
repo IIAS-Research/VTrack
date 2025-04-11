@@ -4,7 +4,7 @@ import { ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
 export function ZoomControls({ zoom, zoomIn, zoomOut, resetZoom }) {
   return (
     <div className="flex flex-col rounded-xl overflow-hidden shadow-sm border border-indigo-100 bg-gradient-to-b from-white to-indigo-50">
-      <h4 className="text-lg font-bold py-2 text-center text-indigo-700 border-b border-indigo-100 bg-white">Zoom</h4>
+      <h4 className="text-lg font-bold py-2 text-center text-indigo-700 border-b border-indigo-100 bg-white">🔍 Zoom</h4>
       <div className="flex items-center justify-between p-3">
         <button
           onClick={zoomOut}

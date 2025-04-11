@@ -277,7 +277,7 @@ export default function DicomAnnotator() {
                 </div>
                 {/* Custom Tools - Moved from right panel */}
                 <div className="w-full rounded-xl overflow-hidden shadow-sm border border-indigo-100 bg-gradient-to-b from-white to-indigo-50 mb-4 mt-2">
-                    <h4 className="text-lg font-bold py-2 text-center text-indigo-700 border-b border-indigo-100 bg-white">Custom Tools</h4>
+                    <h4 className="text-lg font-bold py-2 text-center text-indigo-700 border-b border-indigo-100 bg-white">🛠️ Custom Tools</h4>
                     <div className="grid grid-cols-1 gap-3 p-4">
                         {/* Undo Last Keypoint */}
                         <button 
@@ -410,39 +410,77 @@ export default function DicomAnnotator() {
             {/* Right panel - Tools */}
             <div className="w-full lg:w-1/3 flex flex-col card bg-white p-6 rounded-xl h-fit">
                 <h3 className="text-center text-2xl font-bold mb-4 pb-2 text-indigo-700 border-b border-gray-100">Tools</h3>
+                
+                {/* Mode Selector Tabs */}
+                <div className="mb-4">
+                    <div className="flex rounded-lg overflow-hidden border border-indigo-200 shadow-sm">
+                        <button 
+                            className={`flex-1 py-3 px-4 font-medium transition-all duration-200 ${selectedKeypointLabel ? 'bg-indigo-600 text-white' : 'bg-white text-indigo-700 hover:bg-indigo-50'}`}
+                            onClick={() => {
+                                setSelectedKeypointLabel("Carotide");
+                                setSelectedSkeletonLabel(null);
+                                setSelectedBboxLabel(null);
+                            }}
+                        >
+                            Keypoints
+                        </button>
+                        <button 
+                            className={`flex-1 py-3 px-4 font-medium transition-all duration-200 ${selectedSkeletonLabel ? 'bg-indigo-600 text-white' : 'bg-white text-indigo-700 hover:bg-indigo-50'}`}
+                            onClick={() => {
+                                setSelectedSkeletonLabel("Carotide-Carotide");
+                                setSelectedKeypointLabel(null);
+                                setSelectedBboxLabel(null);
+                            }}
+                        >
+                            Skeletons
+                        </button>
+                        <button 
+                            className={`flex-1 py-3 px-4 font-medium transition-all duration-200 ${selectedBboxLabel ? 'bg-indigo-600 text-white' : 'bg-white text-indigo-700 hover:bg-indigo-50'}`}
+                            onClick={() => {
+                                setSelectedBboxLabel("Occlusion");
+                                setSelectedKeypointLabel(null);
+                                setSelectedSkeletonLabel(null);
+                            }}
+                        >
+                            Occlusions
+                        </button>
+                    </div>
+                </div>
+                
                 <div className="mb-4 flex flex-col gap-4">
-                    {/* Section Vaisseaux */}
-                    <div className="rounded-lg border border-gray-200 shadow-sm p-3 bg-gradient-to-b from-white to-gray-50">
-                        <h4 className="text-lg font-semibold mb-3 text-indigo-700 border-b border-gray-100 pb-2">Vaisseaux</h4>
-                        <VesselLabels 
-                            title="Keypoints"
-                            colors={colors}
-                            selectedLabel={selectedKeypointLabel}
-                            setSelectedLabel={handleKeypointLabelSelect}
-                        />
-                    </div>
+                    {/* Conditional rendering based on selected mode */}
+                    {selectedKeypointLabel && (
+                        <div className="rounded-lg border border-gray-200 shadow-sm p-3 bg-gradient-to-b from-white to-gray-50">
+                            <h4 className="text-lg font-semibold mb-3 text-indigo-700 border-b border-gray-100 pb-2">Vaisseaux</h4>
+                            <VesselLabels 
+                                colors={colors}
+                                selectedLabel={selectedKeypointLabel}
+                                setSelectedLabel={handleKeypointLabelSelect}
+                            />
+                        </div>
+                    )}
 
-                    {/* Section Squelettes */}
-                    <div className="rounded-lg border border-gray-200 shadow-sm p-3 bg-gradient-to-b from-white to-gray-50">
-                        <h4 className="text-lg font-semibold mb-3 text-indigo-700 border-b border-gray-100 pb-2">Squelettes</h4>
-                        <SkeletonLabels 
-                            title="Connexions"
-                            colors={colors}
-                            selectedLabel={selectedSkeletonLabel}
-                            setSelectedLabel={handleSkeletonLabelSelect}
-                        />
-                    </div>
+                    {selectedSkeletonLabel && (
+                        <div className="rounded-lg border border-gray-200 shadow-sm p-3 bg-gradient-to-b from-white to-gray-50">
+                            <h4 className="text-lg font-semibold mb-3 text-indigo-700 border-b border-gray-100 pb-2">Squelettes</h4>
+                            <SkeletonLabels 
+                                colors={colors}
+                                selectedLabel={selectedSkeletonLabel}
+                                setSelectedLabel={handleSkeletonLabelSelect}
+                            />
+                        </div>
+                    )}
 
-                    {/* Section Occlusions */}
-                    <div className="rounded-lg border border-gray-200 shadow-sm p-3 bg-gradient-to-b from-white to-gray-50">
-                        <h4 className="text-lg font-semibold mb-3 text-indigo-700 border-b border-gray-100 pb-2">Occlusions</h4>
-                        <BboxLabels 
-                            title="Occlusions"
-                            colors={colors}
-                            selectedLabel={selectedBboxLabel}
-                            setSelectedLabel={handleBboxLabelSelect}
-                        />
-                    </div>
+                    {selectedBboxLabel && (
+                        <div className="rounded-lg border border-gray-200 shadow-sm p-3 bg-gradient-to-b from-white to-gray-50">
+                            <h4 className="text-lg font-semibold mb-3 text-indigo-700 border-b border-gray-100 pb-2">Occlusions</h4>
+                            <BboxLabels 
+                                colors={colors}
+                                selectedLabel={selectedBboxLabel}
+                                setSelectedLabel={handleBboxLabelSelect}
+                            />
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
