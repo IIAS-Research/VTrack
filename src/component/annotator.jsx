@@ -4,6 +4,7 @@ import { useImageLoader } from "./hooks/useImageLoader";
 import { useZoom } from "./hooks/useZoom";
 import { VesselLabels } from "./components/VesselLabels";
 import { SkeletonLabels } from "./components/SkeletonLabels";
+import { BboxLabels } from "./components/BboxLabels";
 import { ImageNavigator } from "./components/imageNavigator";
 import { ZoomControls } from "./components/ZoomControls";
 import { useAnnotations } from "./hooks/useAnnotations";
@@ -20,6 +21,7 @@ export default function DicomAnnotator() {
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedKeypointLabel, setSelectedKeypointLabel] = useState(null);
     const [selectedSkeletonLabel, setSelectedSkeletonLabel] = useState(null);
+    const [selectedBboxLabel, setSelectedBboxLabel] = useState(null);
     const [keypointSize, setKeypointSize] = useState(5); // Default keypoint size
     
     // Initialize Cornerstone
@@ -34,18 +36,31 @@ export default function DicomAnnotator() {
         adjustCanvasSize
     } = useImageLoader({ viewerRef, canvasRef });
     
-
     const {
         keypoints,
         skeletons,
+        bboxes,
         handleCanvasClick,
+        handleMouseMove,
         drawAll,
         resetKeypoints,
         resetSkeletons,
+        resetBboxes,
         undoLastKeypoint,
         undoLastSkeleton,
-        colors
-    } = useAnnotations({ canvasRef, currentPage, keypointSize, selectedKeypointLabel, selectedSkeletonLabel })
+        undoLastBbox,
+        colors,
+        setKeypoints,
+        setSkeletons,
+        setBboxes
+    } = useAnnotations({ 
+        canvasRef, 
+        currentPage, 
+        keypointSize, 
+        selectedKeypointLabel, 
+        selectedSkeletonLabel,
+        selectedBboxLabel
+    });
 
     // Zoom functionality
     const {
@@ -91,6 +106,13 @@ export default function DicomAnnotator() {
         }
     };
     
+    // Handle Bbox label selection
+    const handleBboxLabelSelect = (label) => {
+        setSelectedBboxLabel(label);
+        setSelectedKeypointLabel(null);
+        setSelectedSkeletonLabel(null);
+    };
+
     // Save JSON handler
     const handleSaveJSON = () => {
         if (images.length === 0 || !dicomLoaded) return;
@@ -107,9 +129,14 @@ export default function DicomAnnotator() {
                 x, 
                 y, 
                 label, 
-                parent: parent ? keypoints[currentPage].indexOf(parent) : null
+                parent: parent ? 
+                    (Array.isArray(parent) ? 
+                        parent.map(p => keypoints[currentPage].indexOf(p)) : 
+                        keypoints[currentPage].indexOf(parent)) 
+                    : null
             })) : [],
-            // skeleton: skeletons[currentPage] || [] // Je ne sais pas si ca sert 
+            skeleton: skeletons[currentPage] || [],
+            bbox: bboxes[currentPage] || []
         }, null, 2);
         
         const blob = new Blob([json], { type: "application/json" });
@@ -232,6 +259,7 @@ export default function DicomAnnotator() {
                         ref={canvasRef}
                         className={`absolute top-0 left-0 w-full h-full pointer-events-auto ${panEnabled ? 'cursor-grab' : 'cursor-crosshair'}`}
                         onClick={handleCanvasClick}
+                        onMouseMove={handleMouseMove}
                         style={{ transformOrigin: '0 0' }}
                     />
                 </div>
@@ -242,16 +270,65 @@ export default function DicomAnnotator() {
             <div className="w-1/3 flex flex-col rounded p-4 h-fit bg-white border border-slate-200 shadow-md">
                 <h3 className="text-center text-2xl font-bold border-b mb-2 pb-2 text-indigo-700">Tools</h3>
                 <div className="mb-4 flex flex-col gap-4">
-                    <VesselLabels 
-                        title="Vessels - Keypoints"
-                        colors={colors}
-                        selectedLabel={selectedKeypointLabel}
-                        setSelectedLabel={handleKeypointLabelSelect}
-                    />
-                    <SkeletonLabels 
-                      selectedLabel={selectedSkeletonLabel}
-                      setSelectedSkeletonLabel={handleSkeletonLabelSelect}
-                    />
+                    {/* Section Vaisseaux */}
+                    <div className="border rounded p-2">
+                        <h4 className="text-lg font-semibold mb-2 text-indigo-700">Vaisseaux</h4>
+                        <VesselLabels 
+                            title="Keypoints"
+                            colors={colors}
+                            selectedLabel={selectedKeypointLabel}
+                            setSelectedLabel={handleKeypointLabelSelect}
+                        />
+                    </div>
+
+                    {/* Section Squelettes */}
+                    <div className="border rounded p-2">
+                        <h4 className="text-lg font-semibold mb-2 text-indigo-700">Squelettes</h4>
+                        <SkeletonLabels 
+                            title="Connexions"
+                            colors={colors}
+                            selectedLabel={selectedSkeletonLabel}
+                            setSelectedLabel={handleSkeletonLabelSelect}
+                        />
+                    </div>
+
+                    {/* Section Occlusions */}
+                    <div className="border rounded p-2">
+                        <h4 className="text-lg font-semibold mb-2 text-indigo-700">Occlusions</h4>
+                        <BboxLabels 
+                            title="Occlusions"
+                            colors={colors}
+                            selectedLabel={selectedBboxLabel}
+                            setSelectedLabel={handleBboxLabelSelect}
+                        />
+                    </div>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                    <button
+                        className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                        onClick={resetKeypoints}
+                    >
+                        Reset Keypoints
+                    </button>
+                    <button
+                        className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                        onClick={resetSkeletons}
+                    >
+                        Reset Skeletons
+                    </button>
+                    <button
+                        className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                        onClick={resetBboxes}
+                    >
+                        Reset Occlusions
+                    </button>
+                    <button
+                        className="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600"
+                        onClick={handleSaveJSON}
+                    >
+                        Save JSON
+                    </button>
                 </div>
                 <div className="w-full bg-slate-50 rounded p-2 mb-4">
                     <h4 className="text-lg font-bold mb-2 text-center text-indigo-500">Custom Tools</h4>
