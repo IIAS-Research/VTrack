@@ -7,7 +7,8 @@ export function ImageNavigator({
     dicomLoaded,
     handlePreviousPage, 
     handleNextPage, 
-    handleSaveJSON 
+    handleSaveJSON,
+    chooseImageButton
 }) {
     return (
         <div className="mt-6 w-full flex justify-center items-center gap-3">
@@ -55,6 +56,7 @@ export function ImageNavigator({
                 <Save size={16} />
                 <span>Save JSON</span>
             </button>
+            {chooseImageButton}
         </div>
     );
 }

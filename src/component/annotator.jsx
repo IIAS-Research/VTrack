@@ -110,6 +110,21 @@ export default function DicomAnnotator() {
         }
     };
     
+    // Choose Image Button JSX
+    const chooseImageButtonJSX = (
+        <label className="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white px-5 py-2.5 rounded-lg cursor-pointer hover:shadow-lg transition-all duration-200 ml-2">
+            <input
+                type="file"
+                accept=".dcm,.png,.jpg,.jpeg,.gif,.bmp"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                className="hidden"
+                multiple
+            />
+            <span className="text-xl">📂</span> <span className="font-medium">Choose Image</span>
+        </label>
+    );
+
     // Handle Bbox label selection
     const handleBboxLabelSelect = (label) => {
         setSelectedBboxLabel(label);
@@ -232,7 +247,7 @@ export default function DicomAnnotator() {
     return (
         <div className="p-6 mt-16 flex flex-col lg:flex-row gap-6">
             {/* Left panel - Action buttons */}
-            <div className="w-full lg:w-1/6 flex flex-col card bg-white p-4 rounded-xl h-fit">
+            <div className="w-full lg:w-1/4 flex flex-col card bg-white p-4 rounded-xl h-fit">
                 <h3 className="text-center text-xl font-bold mb-3 pb-2 text-indigo-700 border-b border-gray-100">Actions</h3>
                 <div className="grid grid-cols-1 gap-2 mb-3">
                     <button
@@ -338,17 +353,16 @@ export default function DicomAnnotator() {
                 onDrop={handleDrop}
             >
                 <div className="w-full flex flex-col items-center card bg-white p-6 rounded-xl">
-                    <label className="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white px-5 py-2.5 rounded-lg cursor-pointer hover:shadow-lg transition-all duration-200">
-                        <input 
-                            type="file" 
-                            accept=".dcm,.png,.jpg,.jpeg,.gif,.bmp" 
-                            ref={fileInputRef} 
-                            onChange={handleFileChange} 
-                            className="hidden" 
-                            multiple
-                        />
-                        <span className="text-xl">📂</span> <span className="font-medium">Choose Image</span>
-                    </label>
+                    {/* Image Navigator */}
+                    <ImageNavigator 
+                        currentPage={currentPage}
+                        imagesLength={images.length}
+                        dicomLoaded={dicomLoaded}
+                        handlePreviousPage={handlePreviousPage}
+                        handleNextPage={handleNextPage}
+                        handleSaveJSON={handleSaveJSON}
+                        chooseImageButton={chooseImageButtonJSX}
+                    />
                     {isDraggingOver && (
                         <div className="mt-4 text-center text-indigo-600 font-semibold bg-indigo-50 p-4 rounded-lg w-full border-2 border-dashed border-indigo-400">
                             <p className="text-lg">Drop files here to upload</p>
@@ -385,18 +399,6 @@ export default function DicomAnnotator() {
                             <p className="text-md text-gray-400">or drag and drop files here</p>
                         </div>
                     )}
-                </div>
-
-                {/* Image Navigator */}
-                <div className="mt-4 w-full card bg-white p-4 rounded-xl">
-                    <ImageNavigator 
-                        currentPage={currentPage}
-                        imagesLength={images.length}
-                        dicomLoaded={dicomLoaded}
-                        handlePreviousPage={handlePreviousPage}
-                        handleNextPage={handleNextPage}
-                        handleSaveJSON={handleSaveJSON}
-                    />
                 </div>
             </div>
             
