@@ -5,7 +5,7 @@ import { useZoom } from "./hooks/useZoom";
 import { VesselLabels } from "./components/VesselLabels";
 import { SkeletonLabels } from "./components/SkeletonLabels";
 import { BboxLabels } from "./components/BboxLabels";
-import { ImageNavigator } from "./components/imageNavigator";
+import { ImageNavigator } from "./components/ImageNavigator";
 import { ZoomControls } from "./components/ZoomControls";
 import { useAnnotations } from "./hooks/useAnnotations";
 import { Undo2 } from "lucide-react";
