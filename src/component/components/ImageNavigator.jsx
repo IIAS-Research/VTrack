@@ -1,4 +1,5 @@
 import React from "react";
+import { ArrowLeft, ArrowRight, Save } from "lucide-react";
 
 export function ImageNavigator({ 
     currentPage, 
@@ -9,27 +10,50 @@ export function ImageNavigator({
     handleSaveJSON 
 }) {
     return (
-        <div className="mt-4 w-full flex justify-center">
+        <div className="mt-6 w-full flex justify-center items-center gap-3">
             <button 
                 onClick={handlePreviousPage} 
                 disabled={currentPage === 1} 
-                className={`px-4 py-2 mr-2 rounded ${currentPage === 1 ? 'bg-sky-100 text-black cursor-no-drop' : 'bg-sky-500 text-white cursor-pointer'}`}
+                className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg shadow-sm transition-all duration-200 ${
+                    currentPage === 1 
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                    : 'bg-gradient-to-r from-sky-500 to-indigo-500 text-white hover:shadow-md hover:scale-105'
+                }`}
             >
-                Previous
+                <ArrowLeft size={16} />
+                <span>Previous</span>
             </button>
+            
+            <div className="px-4 py-2 bg-white rounded-lg shadow-sm border border-gray-200">
+                <span className="font-medium">{currentPage}</span>
+                <span className="text-gray-400"> / </span>
+                <span className="text-gray-500">{imagesLength || 1}</span>
+            </div>
+            
             <button 
                 onClick={handleNextPage} 
                 disabled={currentPage >= imagesLength} 
-                className={`px-4 py-2 mr-2 rounded ${currentPage >= imagesLength ? 'bg-sky-100 text-black cursor-no-drop' : 'bg-sky-500 text-white cursor-pointer'}`}
+                className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg shadow-sm transition-all duration-200 ${
+                    currentPage >= imagesLength 
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                    : 'bg-gradient-to-r from-sky-500 to-indigo-500 text-white hover:shadow-md hover:scale-105'
+                }`}
             >
-                Next
+                <span>Next</span>
+                <ArrowRight size={16} />
             </button>
+            
             <button 
                 onClick={handleSaveJSON} 
                 disabled={!dicomLoaded} 
-                className={`px-4 py-2 mr-2 rounded ${!dicomLoaded ? 'bg-indigo-100 text-black cursor-no-drop' : 'bg-indigo-500 text-white cursor-pointer'}`}
+                className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg shadow-sm transition-all duration-200 ml-2 ${
+                    !dicomLoaded 
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                    : 'bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:shadow-md hover:scale-105'
+                }`}
             >
-                Save JSON
+                <Save size={16} />
+                <span>Save JSON</span>
             </button>
         </div>
     );

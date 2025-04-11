@@ -226,10 +226,10 @@ export default function DicomAnnotator() {
     };
 
     return (
-        <div className="p-4 mt-16 flex gap-4">
+        <div className="p-6 mt-16 flex flex-col lg:flex-row gap-6">
             {/* Left panel - Image viewer */}
-            <div className="w-2/3 flex flex-col items-center rounded p-4 bg-white border border-slate-200 shadow-md">
-                <label className="flex items-center gap-2 bg-indigo-500 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-indigo-600 transition">
+            <div className="w-full lg:w-2/3 flex flex-col items-center card bg-white p-6 rounded-xl">
+                <label className="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white px-5 py-2.5 rounded-lg cursor-pointer hover:shadow-lg transition-all duration-200">
                     <input 
                         type="file" 
                         accept=".dcm,.png,.jpg,.jpeg,.gif,.bmp" 
@@ -238,15 +238,17 @@ export default function DicomAnnotator() {
                         className="hidden" 
                         multiple
                     />
-                    📂 <span>Choisir une image</span>
+                    <span className="text-xl">📂</span> <span className="font-medium">Choose Image</span>
                 </label>
-                <div className="relative max-w-full border rounded shadow-md overflow-hidden">
+                <div className="relative w-full mt-4 overflow-hidden rounded-lg shadow-lg border border-gray-100">
                     {/* Zoom Instructions */}
                     {showInstructions && dicomLoaded && (
-                        <div className="absolute top-12 left-1/2 transform -translate-x-1/2 bg-indigo-700 bg-opacity-90 text-white p-2 rounded z-20 text-sm">
-                            <p>⚙️ Ctrl + Roulette = Zoom | Ctrl + Click = Pan | Utilisez les contrôles en haut à droite</p>
+                        <div className="absolute top-12 left-1/2 transform -translate-x-1/2 bg-indigo-800 bg-opacity-90 text-white p-3 rounded-lg z-20 shadow-lg">
+                            <p className="flex items-center gap-2 font-medium">
+                                <span className="text-lg">⚙️</span> Ctrl + Mouse Wheel = Zoom | Ctrl + Click = Pan | Use controls in top right
+                            </p>
                             <button 
-                                className="absolute top-1 right-1 text-xs"
+                                className="absolute top-1 right-1 text-xs bg-indigo-700 hover:bg-indigo-600 rounded-full w-5 h-5 flex items-center justify-center"
                                 onClick={() => setShowInstructions(false)}
                             >
                                 ✕
@@ -263,16 +265,20 @@ export default function DicomAnnotator() {
                         style={{ transformOrigin: '0 0' }}
                     />
                 </div>
-                {!dicomLoaded && <p className="mt-2">Sélectionne un fichier DICOM ou image</p>}
+                {!dicomLoaded && (
+                    <div className="mt-4 text-center text-gray-500 bg-gray-50 p-4 rounded-lg w-full">
+                        <p className="text-lg">Please select a DICOM or image file to begin</p>
+                    </div>
+                )}
             </div>
             
             {/* Right panel - Tools */}
-            <div className="w-1/3 flex flex-col rounded p-4 h-fit bg-white border border-slate-200 shadow-md">
-                <h3 className="text-center text-2xl font-bold border-b mb-2 pb-2 text-indigo-700">Tools</h3>
-                <div className="mb-4 flex flex-col gap-4">
+            <div className="w-full lg:w-1/3 flex flex-col card bg-white p-6 rounded-xl h-fit">
+                <h3 className="text-center text-2xl font-bold mb-4 pb-2 text-indigo-700 border-b border-gray-100">Tools</h3>
+                <div className="mb-6 flex flex-col gap-4">
                     {/* Section Vaisseaux */}
-                    <div className="border rounded p-2">
-                        <h4 className="text-lg font-semibold mb-2 text-indigo-700">Vaisseaux</h4>
+                    <div className="rounded-lg border border-gray-200 shadow-sm p-3 bg-gradient-to-b from-white to-gray-50">
+                        <h4 className="text-lg font-semibold mb-3 text-indigo-700 border-b border-gray-100 pb-2">Vaisseaux</h4>
                         <VesselLabels 
                             title="Keypoints"
                             colors={colors}
@@ -282,8 +288,8 @@ export default function DicomAnnotator() {
                     </div>
 
                     {/* Section Squelettes */}
-                    <div className="border rounded p-2">
-                        <h4 className="text-lg font-semibold mb-2 text-indigo-700">Squelettes</h4>
+                    <div className="rounded-lg border border-gray-200 shadow-sm p-3 bg-gradient-to-b from-white to-gray-50">
+                        <h4 className="text-lg font-semibold mb-3 text-indigo-700 border-b border-gray-100 pb-2">Squelettes</h4>
                         <SkeletonLabels 
                             title="Connexions"
                             colors={colors}
@@ -293,8 +299,8 @@ export default function DicomAnnotator() {
                     </div>
 
                     {/* Section Occlusions */}
-                    <div className="border rounded p-2">
-                        <h4 className="text-lg font-semibold mb-2 text-indigo-700">Occlusions</h4>
+                    <div className="rounded-lg border border-gray-200 shadow-sm p-3 bg-gradient-to-b from-white to-gray-50">
+                        <h4 className="text-lg font-semibold mb-3 text-indigo-700 border-b border-gray-100 pb-2">Occlusions</h4>
                         <BboxLabels 
                             title="Occlusions"
                             colors={colors}
@@ -304,39 +310,39 @@ export default function DicomAnnotator() {
                     </div>
                 </div>
 
-                <div className="flex flex-col gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
                     <button
-                        className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                        className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 shadow-sm flex items-center justify-center gap-2"
                         onClick={resetKeypoints}
                     >
-                        Reset Keypoints
+                        <span className="text-white">🗑️</span> Reset Keypoints
                     </button>
                     <button
-                        className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                        className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 shadow-sm flex items-center justify-center gap-2"
                         onClick={resetSkeletons}
                     >
-                        Reset Skeletons
+                        <span className="text-white">🗑️</span> Reset Skeletons
                     </button>
                     <button
-                        className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                        className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 shadow-sm flex items-center justify-center gap-2"
                         onClick={resetBboxes}
                     >
-                        Reset Occlusions
+                        <span className="text-white">🗑️</span> Reset Occlusions
                     </button>
                     <button
-                        className="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600"
+                        className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 shadow-sm flex items-center justify-center gap-2"
                         onClick={handleSaveJSON}
                     >
-                        Save JSON
+                        <span className="text-white">💾</span> Save JSON
                     </button>
                 </div>
-                <div className="w-full bg-slate-50 rounded p-2 mb-4">
-                    <h4 className="text-lg font-bold mb-2 text-center text-indigo-500">Custom Tools</h4>
-                    <div className="grid grid-cols-1 gap-2">
+                <div className="w-full rounded-xl overflow-hidden shadow-sm border border-indigo-100 bg-gradient-to-b from-white to-indigo-50 mb-4">
+                    <h4 className="text-lg font-bold py-2 text-center text-indigo-700 border-b border-indigo-100 bg-white">Custom Tools</h4>
+                    <div className="grid grid-cols-1 gap-3 p-4">
                         {/* Undo Last Keypoint */}
                         <button 
                             onClick={undoLastKeypoint}
-                            className="bg-yellow-500 text-white rounded p-2 text-sm flex items-center justify-center gap-2 w-full"
+                            className="bg-amber-500 text-white rounded-lg p-2 text-sm flex items-center justify-center gap-2 w-full hover:bg-amber-600 shadow-sm transition-all duration-200"
                         >
                             <Undo2 size={16} /> 
                             Undo last keypoint
@@ -344,54 +350,40 @@ export default function DicomAnnotator() {
                         {/* Undo Last Skeleton */}
                         <button 
                             onClick={undoLastSkeleton}
-                            className="bg-yellow-500 text-white rounded p-2 text-sm flex items-center justify-center gap-2 w-full"
+                            className="bg-amber-500 text-white rounded-lg p-2 text-sm flex items-center justify-center gap-2 w-full hover:bg-amber-600 shadow-sm transition-all duration-200"
                         >
                             <Undo2 size={16} />
                             Undo last Skeleton
                         </button>
-                        {/* Reset Keypoints */}
-                        <button 
-                            onClick={resetKeypoints}
-                            className="bg-indigo-500 text-white rounded p-2 text-sm"
-                        >
-                            Reset Keypoints
-                        </button>
-                        {/* Reset Skeletons */}
-                        <button 
-                            onClick={resetSkeletons}
-                            className="bg-indigo-500 text-white rounded p-2 text-sm"
-                        >
-                            Reset Skeletons
-                        </button>
 
                         {/* Keypoint Size Controls */}
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between bg-white p-2 rounded-lg border border-gray-200 mt-2">
                             <button 
                                 onClick={() => setKeypointSize(size => {
                                     const newSize = Math.max(size - 1, 1);
                                     drawAll(currentPage);
                                     return newSize;
                                 })}
-                                className="bg-indigo-500 text-white rounded p-2 text-sm"
+                                className="bg-indigo-500 text-white rounded-lg p-2 text-sm hover:bg-indigo-600 shadow-sm flex-1 mr-2"
                             >
-                                Decrease Keypoint Size
+                                Smaller
                             </button>
-                            <span className="text-sm">{keypointSize}px</span>
+                            <span className="text-sm font-medium bg-indigo-100 px-3 py-1 rounded-lg">{keypointSize}px</span>
                             <button 
                                 onClick={() => setKeypointSize(size => {
                                     const newSize = size + 1;
                                     drawAll(currentPage);
                                     return newSize;
                                 })}
-                                className="bg-indigo-500 text-white rounded p-2 text-sm"
+                                className="bg-indigo-500 text-white rounded-lg p-2 text-sm hover:bg-indigo-600 shadow-sm flex-1 ml-2"
                             >
-                                Increase Keypoint Size
+                                Larger
                             </button>
                         </div>
                     </div>
                 </div>
-                <div className="w-full bg-slate-50 rounded p-2">
-                    <div className="flex items-center justify-center mb-2">
+                <div className="w-full rounded-xl overflow-hidden shadow-sm border border-indigo-100 bg-gradient-to-b from-white to-indigo-50 mb-4">
+                    <div className="flex items-center justify-center py-3 bg-white border-b border-indigo-100">
                         {dicomLoaded && (
                             <ZoomControls 
                                 zoom={zoom}
@@ -402,15 +394,17 @@ export default function DicomAnnotator() {
                         )}
                     </div>
                     {/* Bouton pour charger une annotation JSON */}
-                    <label className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-green-600 transition">
-                        <input 
-                            type="file" 
-                            accept=".json" 
-                            onChange={handleLoadJSON} 
-                            className="hidden"
-                        />
-                        📑 <span>Charger une annotation</span>
+                    <div className="p-4 flex justify-center">
+                        <label className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-4 py-2 rounded-lg cursor-pointer hover:shadow-lg transition-all duration-200 w-full justify-center">
+                            <input 
+                                type="file" 
+                                accept=".json" 
+                                onChange={handleLoadJSON} 
+                                className="hidden"
+                            />
+                            <span className="text-xl">📑</span> <span className="font-medium">Load Annotation</span>
                         </label>
+                    </div>
                 </div>
                 {/* Image Navigator */}
                 <ImageNavigator 

@@ -4,10 +4,10 @@ import Annotator from '../component/annotator';
 
 const Dashboard = () => {
     return (
-        <div>
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50">
             <Menu />
-            <div style={{ display: 'flex' }}>
-                <div style={{ width: '100%' }}>
+            <div className="container mx-auto px-4 py-6">
+                <div className="w-full">
                     <Annotator />
                 </div>
             </div>
