@@ -19,7 +19,7 @@ export default function DicomAnnotator() {
     
     // Initialize state
     const [currentPage, setCurrentPage] = useState(1);
-    const [selectedKeypointLabel, setSelectedKeypointLabel] = useState(null);
+    const [selectedKeypointLabel, setSelectedKeypointLabel] = useState("Carotide");
     const [selectedSkeletonLabel, setSelectedSkeletonLabel] = useState(null);
     const [selectedBboxLabel, setSelectedBboxLabel] = useState(null);
     const [keypointSize, setKeypointSize] = useState(5); // Default keypoint size
@@ -248,7 +248,7 @@ export default function DicomAnnotator() {
     };
 
     return (
-        <div className="p-6 mt-16 flex flex-col lg:flex-row gap-6">
+        <div className="px-6 mt-16 flex flex-col lg:flex-row gap-6">
             {/* Left panel - Action buttons */}
             <div className="w-full lg:w-1/4 flex flex-col card bg-white p-4 rounded-xl h-fit">
                 <h3 className="text-center text-xl font-bold mb-3 pb-2 text-indigo-700 border-b border-gray-100">Actions</h3>
