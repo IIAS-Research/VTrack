@@ -8,7 +8,7 @@ import { BboxLabels } from "./components/BboxLabels";
 import { ImageNavigator } from "./components/ImageNavigator";
 import { ZoomControls } from "./components/ZoomControls";
 import { useAnnotations } from "./hooks/useAnnotations";
-import { Undo2 } from "lucide-react";
+import { Undo2, Redo2 } from "lucide-react";
 // import { colors } from "cornerstone-core";
 
 export default function DicomAnnotator() {
@@ -53,6 +53,12 @@ export default function DicomAnnotator() {
         undoLastKeypoint,
         undoLastSkeleton,
         undoLastBbox,
+        redoLastKeypoint,
+        redoLastSkeleton,
+        redoLastBbox,
+        canRedoKeypoint,
+        canRedoSkeleton,
+        canRedoBbox,
         colors,
         setKeypoints,
         setSkeletons,
@@ -146,19 +152,19 @@ export default function DicomAnnotator() {
             filename: currentImage.name,
             width: canvas.width,
             height: canvas.height,
-            vessel: keypoints[currentPage] ? keypoints[currentPage].map(({ x, y, label, parent }, index) => ({
+            vessel: keypoints ? keypoints.map(({ x, y, label, parent }, index) => ({
                 id: index,
                 x, 
                 y, 
                 label, 
                 parent: parent ? 
                     (Array.isArray(parent) ? 
-                        parent.map(p => keypoints[currentPage].indexOf(p)) : 
-                        keypoints[currentPage].indexOf(parent)) 
+                        parent.map(p => keypoints.findIndex(kp => kp.x === p.x && kp.y === p.y && kp.label === p.label)) : 
+                        keypoints.findIndex(kp => kp.x === parent.x && kp.y === parent.y && kp.label === parent.label)) 
                     : null
             })) : [],
-            skeleton: skeletons[currentPage] || [],
-            bbox: bboxes[currentPage] || []
+            skeleton: skeletons || [],
+            bbox: bboxes || []
         }, null, 2);
         
         const blob = new Blob([json], { type: "application/json" });
@@ -180,23 +186,31 @@ export default function DicomAnnotator() {
                 const data = JSON.parse(e.target.result);
     
                 if (data.vessel) {
-                    const newKeypoints = { ...keypoints };
-                    newKeypoints[currentPage] = data.vessel.map(({ x, y, label, parent }, index) => ({
-                        x, 
-                        y, 
-                        label, 
-                        parent: parent !== null ? data.vessel[parent] : null
+                    const loadedKeypoints = data.vessel.map(({ x, y, label, parent: parentIndex }) => ({
+                        x,
+                        y,
+                        label,
+                        parent: parentIndex !== null && parentIndex >= 0 && parentIndex < data.vessel.length 
+                            ? data.vessel[parentIndex] 
+                            : null
                     }));
-                    setKeypoints(newKeypoints);
+                    const finalLoadedKeypoints = loadedKeypoints.map((kp, index, arr) => {
+                        if (kp.parent) {
+                            const parentData = kp.parent;
+                            kp.parent = arr.find(p => p.x === parentData.x && p.y === parentData.y && p.label === parentData.label);
+                        }
+                        return kp;
+                    });
+                    setKeypoints(finalLoadedKeypoints);
                 }
     
                 if (data.skeleton) {
-                    const newSkeletons = { ...skeletons };
-                    newSkeletons[currentPage] = data.skeleton;
-                    setSkeletons(newSkeletons);
+                    setSkeletons(data.skeleton);
                 }
     
-                drawAll(currentPage);
+                if (data.bbox) {
+                    setBboxes(data.bbox);
+                }
             } catch (error) {
                 console.error("Erreur lors du chargement du JSON :", error);
             }
@@ -279,22 +293,62 @@ export default function DicomAnnotator() {
                 <div className="w-full rounded-xl overflow-hidden shadow-sm border border-indigo-100 bg-gradient-to-b from-white to-indigo-50 mb-4 mt-2">
                     <h4 className="text-lg font-bold py-2 text-center text-indigo-700 border-b border-indigo-100 bg-white">🛠️ Custom Tools</h4>
                     <div className="grid grid-cols-1 gap-3 p-4">
-                        {/* Undo Last Keypoint */}
-                        <button 
-                            onClick={undoLastKeypoint}
-                            className="bg-amber-500 text-white rounded-lg p-2 text-sm flex items-center justify-center gap-2 w-full hover:bg-amber-600 shadow-sm transition-all duration-200"
-                        >
-                            <Undo2 size={16} /> 
-                            Undo last keypoint
-                        </button>
-                        {/* Undo Last Skeleton */}
-                        <button 
-                            onClick={undoLastSkeleton}
-                            className="bg-amber-500 text-white rounded-lg p-2 text-sm flex items-center justify-center gap-2 w-full hover:bg-amber-600 shadow-sm transition-all duration-200"
-                        >
-                            <Undo2 size={16} />
-                            Undo last Skeleton
-                        </button>
+                        {/* Undo/Redo Keypoint */}
+                        <div className="flex gap-2">
+                            <button 
+                                onClick={undoLastKeypoint}
+                                className="bg-amber-500 text-white rounded-lg p-2 text-sm flex items-center justify-center gap-2 w-full hover:bg-amber-600 shadow-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <Undo2 size={16} /> 
+                                Undo Keypoint
+                            </button>
+                            <button 
+                                onClick={redoLastKeypoint}
+                                disabled={!canRedoKeypoint}
+                                className="bg-sky-500 text-white rounded-lg p-2 text-sm flex items-center justify-center gap-2 w-full hover:bg-sky-600 shadow-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <Redo2 size={16} />
+                                Redo Keypoint
+                            </button>
+                        </div>
+
+                        {/* Undo/Redo Skeleton */}
+                        <div className="flex gap-2">
+                            <button 
+                                onClick={undoLastSkeleton}
+                                className="bg-amber-500 text-white rounded-lg p-2 text-sm flex items-center justify-center gap-2 w-full hover:bg-amber-600 shadow-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <Undo2 size={16} />
+                                Undo Skeleton
+                            </button>
+                            <button 
+                                onClick={redoLastSkeleton}
+                                disabled={!canRedoSkeleton}
+                                className="bg-sky-500 text-white rounded-lg p-2 text-sm flex items-center justify-center gap-2 w-full hover:bg-sky-600 shadow-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <Redo2 size={16} />
+                                Redo Skeleton
+                            </button>
+                        </div>
+
+                        {/* Undo/Redo Bbox */}
+                        <div className="flex gap-2">
+                            <button 
+                                onClick={undoLastBbox}
+                                className="bg-amber-500 text-white rounded-lg p-2 text-sm flex items-center justify-center gap-2 w-full hover:bg-amber-600 shadow-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <Undo2 size={16} />
+                                Undo Occlusion
+                            </button>
+                            <button 
+                                onClick={redoLastBbox}
+                                disabled={!canRedoBbox}
+                                className="bg-sky-500 text-white rounded-lg p-2 text-sm flex items-center justify-center gap-2 w-full hover:bg-sky-600 shadow-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <Redo2 size={16} />
+                                Redo Occlusion
+                            </button>
+                        </div>
 
                         {/* Keypoint Size Controls */}
                         <div className="flex items-center justify-between bg-white p-2 rounded-lg border border-gray-200 mt-2">
