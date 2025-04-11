@@ -227,134 +227,38 @@ export default function DicomAnnotator() {
 
     return (
         <div className="p-6 mt-16 flex flex-col lg:flex-row gap-6">
-            {/* Left column */}
-            <div className="w-full lg:w-2/3 flex flex-col gap-4">
-                {/* Image viewer panel */}
-                <div className="w-full flex flex-col items-center card bg-white p-6 rounded-xl">
-                    <label className="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white px-5 py-2.5 rounded-lg cursor-pointer hover:shadow-lg transition-all duration-200">
-                        <input 
-                            type="file" 
-                            accept=".dcm,.png,.jpg,.jpeg,.gif,.bmp" 
-                            ref={fileInputRef} 
-                            onChange={handleFileChange} 
-                            className="hidden" 
-                            multiple
-                        />
-                        <span className="text-xl">📂</span> <span className="font-medium">Choose Image</span>
-                    </label>
-                    <div className="relative w-full mt-4 overflow-hidden rounded-lg shadow-lg border border-gray-100">
-                        {/* Zoom Instructions */}
-                        {showInstructions && dicomLoaded && (
-                            <div className="absolute top-12 left-1/2 transform -translate-x-1/2 bg-indigo-800 bg-opacity-90 text-white p-3 rounded-lg z-20 shadow-lg">
-                                <p className="flex items-center gap-2 font-medium">
-                                    <span className="text-lg">⚙️</span> Ctrl + Mouse Wheel = Zoom | Ctrl + Click = Pan | Use controls in top right
-                                </p>
-                                <button 
-                                    className="absolute top-1 right-1 text-xs bg-indigo-700 hover:bg-indigo-600 rounded-full w-5 h-5 flex items-center justify-center"
-                                    onClick={() => setShowInstructions(false)}
-                                >
-                                    ✕
-                                </button>
-                            </div>
-                        )}
-                        
-                        <div ref={viewerRef} className="w-full h-full" style={{ transformOrigin: '0 0' }}></div>
-                        <canvas
-                            ref={canvasRef}
-                            className={`absolute top-0 left-0 w-full h-full pointer-events-auto ${panEnabled ? 'cursor-grab' : 'cursor-crosshair'}`}
-                            onClick={handleCanvasClick}
-                            onMouseMove={handleMouseMove}
-                            style={{ transformOrigin: '0 0' }}
-                        />
-                    </div>
-                    {!dicomLoaded && (
-                        <div className="mt-4 text-center text-gray-500 bg-gray-50 p-4 rounded-lg w-full">
-                            <p className="text-lg">Please select a DICOM or image file to begin</p>
-                        </div>
-                    )}
+            {/* Left panel - Action buttons */}
+            <div className="w-full lg:w-1/5 flex flex-col card bg-white p-4 rounded-xl h-fit">
+                <h3 className="text-center text-xl font-bold mb-3 pb-2 text-indigo-700 border-b border-gray-100">Actions</h3>
+                <div className="grid grid-cols-1 gap-2 mb-3">
+                    <button
+                        className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 shadow-sm flex items-center justify-center gap-2"
+                        onClick={resetKeypoints}
+                    >
+                        <span className="text-white">🗑️</span> Reset Keypoints
+                    </button>
+                    <button
+                        className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 shadow-sm flex items-center justify-center gap-2"
+                        onClick={resetSkeletons}
+                    >
+                        <span className="text-white">🗑️</span> Reset Skeletons
+                    </button>
+                    <button
+                        className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 shadow-sm flex items-center justify-center gap-2"
+                        onClick={resetBboxes}
+                    >
+                        <span className="text-white">🗑️</span> Reset Occlusions
+                    </button>
+                    <button
+                        className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 shadow-sm flex items-center justify-center gap-2"
+                        onClick={handleSaveJSON}
+                    >
+                        <span className="text-white">💾</span> Save JSON
+                    </button>
                 </div>
 
-                {/* Action buttons panel - Moved from right panel */}
-                <div className="w-full card bg-white p-4 rounded-xl">
-                    <h3 className="text-center text-xl font-bold mb-3 pb-2 text-indigo-700 border-b border-gray-100">Actions</h3>
-                    <div className="grid grid-cols-2 gap-2 mb-3">
-                        <button
-                            className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 shadow-sm flex items-center justify-center gap-2"
-                            onClick={resetKeypoints}
-                        >
-                            <span className="text-white">🗑️</span> Reset Keypoints
-                        </button>
-                        <button
-                            className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 shadow-sm flex items-center justify-center gap-2"
-                            onClick={resetSkeletons}
-                        >
-                            <span className="text-white">🗑️</span> Reset Skeletons
-                        </button>
-                        <button
-                            className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 shadow-sm flex items-center justify-center gap-2"
-                            onClick={resetBboxes}
-                        >
-                            <span className="text-white">🗑️</span> Reset Occlusions
-                        </button>
-                        <button
-                            className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 shadow-sm flex items-center justify-center gap-2"
-                            onClick={handleSaveJSON}
-                        >
-                            <span className="text-white">💾</span> Save JSON
-                        </button>
-                    </div>
-
-                    {/* Image Navigator */}
-                    <ImageNavigator 
-                        currentPage={currentPage}
-                        imagesLength={images.length}
-                        dicomLoaded={dicomLoaded}
-                        handlePreviousPage={handlePreviousPage}
-                        handleNextPage={handleNextPage}
-                        handleSaveJSON={handleSaveJSON}
-                    />
-                </div>
-            </div>
-            
-            {/* Right panel - Tools */}
-            <div className="w-full lg:w-1/3 flex flex-col card bg-white p-6 rounded-xl h-fit">
-                <h3 className="text-center text-2xl font-bold mb-4 pb-2 text-indigo-700 border-b border-gray-100">Tools</h3>
-                <div className="mb-6 flex flex-col gap-4">
-                    {/* Section Vaisseaux */}
-                    <div className="rounded-lg border border-gray-200 shadow-sm p-3 bg-gradient-to-b from-white to-gray-50">
-                        <h4 className="text-lg font-semibold mb-3 text-indigo-700 border-b border-gray-100 pb-2">Vaisseaux</h4>
-                        <VesselLabels 
-                            title="Keypoints"
-                            colors={colors}
-                            selectedLabel={selectedKeypointLabel}
-                            setSelectedLabel={handleKeypointLabelSelect}
-                        />
-                    </div>
-
-                    {/* Section Squelettes */}
-                    <div className="rounded-lg border border-gray-200 shadow-sm p-3 bg-gradient-to-b from-white to-gray-50">
-                        <h4 className="text-lg font-semibold mb-3 text-indigo-700 border-b border-gray-100 pb-2">Squelettes</h4>
-                        <SkeletonLabels 
-                            title="Connexions"
-                            colors={colors}
-                            selectedLabel={selectedSkeletonLabel}
-                            setSelectedLabel={handleSkeletonLabelSelect}
-                        />
-                    </div>
-
-                    {/* Section Occlusions */}
-                    <div className="rounded-lg border border-gray-200 shadow-sm p-3 bg-gradient-to-b from-white to-gray-50">
-                        <h4 className="text-lg font-semibold mb-3 text-indigo-700 border-b border-gray-100 pb-2">Occlusions</h4>
-                        <BboxLabels 
-                            title="Occlusions"
-                            colors={colors}
-                            selectedLabel={selectedBboxLabel}
-                            setSelectedLabel={handleBboxLabelSelect}
-                        />
-                    </div>
-                </div>
-
-                <div className="w-full rounded-xl overflow-hidden shadow-sm border border-indigo-100 bg-gradient-to-b from-white to-indigo-50 mb-4">
+                {/* Custom Tools - Moved from right panel */}
+                <div className="w-full rounded-xl overflow-hidden shadow-sm border border-indigo-100 bg-gradient-to-b from-white to-indigo-50 mb-4 mt-2">
                     <h4 className="text-lg font-bold py-2 text-center text-indigo-700 border-b border-indigo-100 bg-white">Custom Tools</h4>
                     <div className="grid grid-cols-1 gap-3 p-4">
                         {/* Undo Last Keypoint */}
@@ -400,6 +304,8 @@ export default function DicomAnnotator() {
                         </div>
                     </div>
                 </div>
+
+                {/* Zoom Controls - Moved from right panel */}
                 <div className="w-full rounded-xl overflow-hidden shadow-sm border border-indigo-100 bg-gradient-to-b from-white to-indigo-50 mb-4">
                     <div className="flex items-center justify-center py-3 bg-white border-b border-indigo-100">
                         {dicomLoaded && (
@@ -411,7 +317,7 @@ export default function DicomAnnotator() {
                             />
                         )}
                     </div>
-                    {/* Bouton pour charger une annotation JSON */}
+                    {/* Load Annotation Button */}
                     <div className="p-4 flex justify-center">
                         <label className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-4 py-2 rounded-lg cursor-pointer hover:shadow-lg transition-all duration-200 w-full justify-center">
                             <input 
@@ -422,6 +328,104 @@ export default function DicomAnnotator() {
                             />
                             <span className="text-xl">📑</span> <span className="font-medium">Load Annotation</span>
                         </label>
+                    </div>
+                </div>
+            </div>
+            
+            {/* Middle panel - Image viewer */}
+            <div className="w-full lg:w-2/5 flex flex-col">
+                <div className="w-full flex flex-col items-center card bg-white p-6 rounded-xl">
+                    <label className="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white px-5 py-2.5 rounded-lg cursor-pointer hover:shadow-lg transition-all duration-200">
+                        <input 
+                            type="file" 
+                            accept=".dcm,.png,.jpg,.jpeg,.gif,.bmp" 
+                            ref={fileInputRef} 
+                            onChange={handleFileChange} 
+                            className="hidden" 
+                            multiple
+                        />
+                        <span className="text-xl">📂</span> <span className="font-medium">Choose Image</span>
+                    </label>
+                    <div className="relative w-full mt-4 overflow-hidden rounded-lg shadow-lg border border-gray-100">
+                        {/* Zoom Instructions */}
+                        {showInstructions && dicomLoaded && (
+                            <div className="absolute top-12 left-1/2 transform -translate-x-1/2 bg-indigo-800 bg-opacity-90 text-white p-3 rounded-lg z-20 shadow-lg">
+                                <p className="flex items-center gap-2 font-medium">
+                                    <span className="text-lg">⚙️</span> Ctrl + Mouse Wheel = Zoom | Ctrl + Click = Pan | Use controls in top right
+                                </p>
+                                <button 
+                                    className="absolute top-1 right-1 text-xs bg-indigo-700 hover:bg-indigo-600 rounded-full w-5 h-5 flex items-center justify-center"
+                                    onClick={() => setShowInstructions(false)}
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                        )}
+                        
+                        <div ref={viewerRef} className="w-full h-full" style={{ transformOrigin: '0 0' }}></div>
+                        <canvas
+                            ref={canvasRef}
+                            className={`absolute top-0 left-0 w-full h-full pointer-events-auto ${panEnabled ? 'cursor-grab' : 'cursor-crosshair'}`}
+                            onClick={handleCanvasClick}
+                            onMouseMove={handleMouseMove}
+                            style={{ transformOrigin: '0 0' }}
+                        />
+                    </div>
+                    {!dicomLoaded && (
+                        <div className="mt-4 text-center text-gray-500 bg-gray-50 p-4 rounded-lg w-full">
+                            <p className="text-lg">Please select a DICOM or image file to begin</p>
+                        </div>
+                    )}
+                </div>
+
+                {/* Image Navigator */}
+                <div className="mt-4 w-full card bg-white p-4 rounded-xl">
+                    <ImageNavigator 
+                        currentPage={currentPage}
+                        imagesLength={images.length}
+                        dicomLoaded={dicomLoaded}
+                        handlePreviousPage={handlePreviousPage}
+                        handleNextPage={handleNextPage}
+                        handleSaveJSON={handleSaveJSON}
+                    />
+                </div>
+            </div>
+            
+            {/* Right panel - Tools */}
+            <div className="w-full lg:w-2/5 flex flex-col card bg-white p-6 rounded-xl h-fit">
+                <h3 className="text-center text-2xl font-bold mb-4 pb-2 text-indigo-700 border-b border-gray-100">Tools</h3>
+                <div className="mb-4 flex flex-col gap-4">
+                    {/* Section Vaisseaux */}
+                    <div className="rounded-lg border border-gray-200 shadow-sm p-3 bg-gradient-to-b from-white to-gray-50">
+                        <h4 className="text-lg font-semibold mb-3 text-indigo-700 border-b border-gray-100 pb-2">Vaisseaux</h4>
+                        <VesselLabels 
+                            title="Keypoints"
+                            colors={colors}
+                            selectedLabel={selectedKeypointLabel}
+                            setSelectedLabel={handleKeypointLabelSelect}
+                        />
+                    </div>
+
+                    {/* Section Squelettes */}
+                    <div className="rounded-lg border border-gray-200 shadow-sm p-3 bg-gradient-to-b from-white to-gray-50">
+                        <h4 className="text-lg font-semibold mb-3 text-indigo-700 border-b border-gray-100 pb-2">Squelettes</h4>
+                        <SkeletonLabels 
+                            title="Connexions"
+                            colors={colors}
+                            selectedLabel={selectedSkeletonLabel}
+                            setSelectedLabel={handleSkeletonLabelSelect}
+                        />
+                    </div>
+
+                    {/* Section Occlusions */}
+                    <div className="rounded-lg border border-gray-200 shadow-sm p-3 bg-gradient-to-b from-white to-gray-50">
+                        <h4 className="text-lg font-semibold mb-3 text-indigo-700 border-b border-gray-100 pb-2">Occlusions</h4>
+                        <BboxLabels 
+                            title="Occlusions"
+                            colors={colors}
+                            selectedLabel={selectedBboxLabel}
+                            setSelectedLabel={handleBboxLabelSelect}
+                        />
                     </div>
                 </div>
             </div>
