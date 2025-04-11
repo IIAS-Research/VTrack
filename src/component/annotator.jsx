@@ -31,7 +31,11 @@ export default function DicomAnnotator() {
     const { 
         images, 
         dicomLoaded, 
+        isDraggingOver,
         handleFileChange, 
+        handleDragOver,
+        handleDragLeave,
+        handleDrop,
         loadImage,
         adjustCanvasSize
     } = useImageLoader({ viewerRef, canvasRef });
@@ -249,12 +253,6 @@ export default function DicomAnnotator() {
                     >
                         <span className="text-white">🗑️</span> Reset Occlusions
                     </button>
-                    <button
-                        className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 shadow-sm flex items-center justify-center gap-2"
-                        onClick={handleSaveJSON}
-                    >
-                        <span className="text-white">💾</span> Save JSON
-                    </button>
                 </div>
 
                 {/* Custom Tools - Moved from right panel */}
@@ -333,7 +331,12 @@ export default function DicomAnnotator() {
             </div>
             
             {/* Middle panel - Image viewer */}
-            <div className="w-full lg:w-1/2 flex flex-col">
+            <div 
+                className={`w-full lg:w-1/2 flex flex-col transition-all duration-200 ${isDraggingOver ? 'bg-indigo-100 scale-105 shadow-xl' : ''}`}
+                onDragOver={handleDragOver} 
+                onDragLeave={handleDragLeave} 
+                onDrop={handleDrop}
+            >
                 <div className="w-full flex flex-col items-center card bg-white p-6 rounded-xl">
                     <label className="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white px-5 py-2.5 rounded-lg cursor-pointer hover:shadow-lg transition-all duration-200">
                         <input 
@@ -346,6 +349,11 @@ export default function DicomAnnotator() {
                         />
                         <span className="text-xl">📂</span> <span className="font-medium">Choose Image</span>
                     </label>
+                    {isDraggingOver && (
+                        <div className="mt-4 text-center text-indigo-600 font-semibold bg-indigo-50 p-4 rounded-lg w-full border-2 border-dashed border-indigo-400">
+                            <p className="text-lg">Drop files here to upload</p>
+                        </div>
+                    )}
                     <div className="relative w-full mt-4 overflow-hidden rounded-lg shadow-lg border border-gray-100">
                         {/* Zoom Instructions */}
                         {showInstructions && dicomLoaded && (
@@ -371,9 +379,10 @@ export default function DicomAnnotator() {
                             style={{ transformOrigin: '0 0' }}
                         />
                     </div>
-                    {!dicomLoaded && (
+                    {!dicomLoaded && !isDraggingOver && (
                         <div className="mt-4 text-center text-gray-500 bg-gray-50 p-4 rounded-lg w-full">
                             <p className="text-lg">Please select a DICOM or image file to begin</p>
+                            <p className="text-md text-gray-400">or drag and drop files here</p>
                         </div>
                     )}
                 </div>
