@@ -4,6 +4,34 @@ body {
     background-color: #f8f9fa;
     font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
     color: #333;
+
+    /* Animated Gradient Background */
+    background: linear-gradient(
+        -45deg,
+        rgba(238, 119, 82, 0.1),
+        rgba(231, 60, 126, 0.1),
+        rgba(35, 166, 213, 0.1),
+        rgba(35, 213, 171, 0.1)
+    );
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+    height: 100vh; /* Ensure body takes full height */
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.bg-gradient-to-br {
+    background: none;
 }
 
 /* Button hover effect with smooth transition */
@@ -12,8 +40,8 @@ button {
 }
 
 button:hover {
-    opacity: 0.75;
-    transform: translateY(-1px);
+    transform: translateY(-2px) scale(1.1);
+    filter: brightness(0.9);
 }
 
 /* Custom scrollbar */

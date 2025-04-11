@@ -112,7 +112,10 @@ export default function DicomAnnotator() {
     
     // Choose Image Button JSX
     const chooseImageButtonJSX = (
-        <label className="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white px-5 py-2.5 rounded-lg cursor-pointer hover:shadow-lg transition-all duration-200 ml-2">
+        <button 
+            className="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white px-5 py-2.5 rounded-lg cursor-pointer hover:shadow-lg transition-all duration-200 ml-2"
+            onClick={() => fileInputRef.current.click()}
+        >
             <input
                 type="file"
                 accept=".dcm,.png,.jpg,.jpeg,.gif,.bmp"
@@ -122,7 +125,7 @@ export default function DicomAnnotator() {
                 multiple
             />
             <span className="text-xl">📂</span> <span className="font-medium">Choose Image</span>
-        </label>
+        </button>
     );
 
     // Handle Bbox label selection
@@ -249,27 +252,29 @@ export default function DicomAnnotator() {
             {/* Left panel - Action buttons */}
             <div className="w-full lg:w-1/4 flex flex-col card bg-white p-4 rounded-xl h-fit">
                 <h3 className="text-center text-xl font-bold mb-3 pb-2 text-indigo-700 border-b border-gray-100">Actions</h3>
-                <div className="grid grid-cols-1 gap-2 mb-3">
-                    <button
-                        className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 shadow-sm flex items-center justify-center gap-2"
-                        onClick={resetKeypoints}
-                    >
-                        <span className="text-white">🗑️</span> Reset Keypoints
-                    </button>
-                    <button
-                        className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 shadow-sm flex items-center justify-center gap-2"
-                        onClick={resetSkeletons}
-                    >
-                        <span className="text-white">🗑️</span> Reset Skeletons
-                    </button>
-                    <button
-                        className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 shadow-sm flex items-center justify-center gap-2"
-                        onClick={resetBboxes}
-                    >
-                        <span className="text-white">🗑️</span> Reset Occlusions
-                    </button>
+                <div className="w-full rounded-xl overflow-hidden shadow-sm border border-indigo-100 bg-gradient-to-b from-white to-indigo-50 mb-3">
+                    <h4 className="text-lg font-bold py-2 text-center text-indigo-700 border-b border-indigo-100 bg-white"><span className="text-white">🗑️</span> Reset</h4>
+                    <div className="grid grid-cols-3 gap-2 p-3">
+                        <button
+                            className="bg-red-500 text-white px-2 py-2 rounded-lg hover:bg-red-600 shadow-sm flex items-center justify-center gap-1"
+                            onClick={resetKeypoints}
+                        >
+                            Keypoints
+                        </button>
+                        <button
+                            className="bg-red-500 text-white px-2 py-2 rounded-lg hover:bg-red-600 shadow-sm flex items-center justify-center gap-1"
+                            onClick={resetSkeletons}
+                        >
+                            Skeletons
+                        </button>
+                        <button
+                            className="bg-red-500 text-white px-2 py-2 rounded-lg hover:bg-red-600 shadow-sm flex items-center justify-center gap-1"
+                            onClick={resetBboxes}
+                        >
+                            Occlusions
+                        </button>
+                    </div>
                 </div>
-
                 {/* Custom Tools - Moved from right panel */}
                 <div className="w-full rounded-xl overflow-hidden shadow-sm border border-indigo-100 bg-gradient-to-b from-white to-indigo-50 mb-4 mt-2">
                     <h4 className="text-lg font-bold py-2 text-center text-indigo-700 border-b border-indigo-100 bg-white">Custom Tools</h4>
