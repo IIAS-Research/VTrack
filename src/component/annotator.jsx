@@ -228,7 +228,7 @@ export default function DicomAnnotator() {
     return (
         <div className="p-6 mt-16 flex flex-col lg:flex-row gap-6">
             {/* Left panel - Action buttons */}
-            <div className="w-full lg:w-1/5 flex flex-col card bg-white p-4 rounded-xl h-fit">
+            <div className="w-full lg:w-1/6 flex flex-col card bg-white p-4 rounded-xl h-fit">
                 <h3 className="text-center text-xl font-bold mb-3 pb-2 text-indigo-700 border-b border-gray-100">Actions</h3>
                 <div className="grid grid-cols-1 gap-2 mb-3">
                     <button
@@ -333,7 +333,7 @@ export default function DicomAnnotator() {
             </div>
             
             {/* Middle panel - Image viewer */}
-            <div className="w-full lg:w-2/5 flex flex-col">
+            <div className="w-full lg:w-1/2 flex flex-col">
                 <div className="w-full flex flex-col items-center card bg-white p-6 rounded-xl">
                     <label className="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white px-5 py-2.5 rounded-lg cursor-pointer hover:shadow-lg transition-all duration-200">
                         <input 
@@ -392,7 +392,7 @@ export default function DicomAnnotator() {
             </div>
             
             {/* Right panel - Tools */}
-            <div className="w-full lg:w-2/5 flex flex-col card bg-white p-6 rounded-xl h-fit">
+            <div className="w-full lg:w-1/3 flex flex-col card bg-white p-6 rounded-xl h-fit">
                 <h3 className="text-center text-2xl font-bold mb-4 pb-2 text-indigo-700 border-b border-gray-100">Tools</h3>
                 <div className="mb-4 flex flex-col gap-4">
                     {/* Section Vaisseaux */}
