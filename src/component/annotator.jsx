@@ -1,5 +1,4 @@
 import { useRef, useState, useEffect } from "react";
-import { initializeCornerstoneTools } from "./components/cornerstoneSetup";
 import { useImageLoader } from "./hooks/useImageLoader";
 import { useZoom } from "./hooks/useZoom";
 import { VesselLabels } from "./components/VesselLabels";
@@ -9,7 +8,6 @@ import { ImageNavigator } from "./components/ImageNavigator";
 import { ZoomControls } from "./components/ZoomControls";
 import { useAnnotations } from "./hooks/useAnnotations";
 import { Undo2, Redo2 } from "lucide-react";
-// import { colors } from "cornerstone-core";
 
 export default function DicomAnnotator() {
     // Initialize refs
@@ -25,13 +23,9 @@ export default function DicomAnnotator() {
     const [selectedBboxLabel, setSelectedBboxLabel] = useState(null);
     const [keypointSize, setKeypointSize] = useState(5); // Default keypoint size
     
-    // Initialize Cornerstone
-    initializeCornerstoneTools();
-    
     // Custom hooks for functionality
     const { 
         images, 
-        dicomLoaded, 
         isDraggingOver,
         handleFileChange, 
         handleDragOver,
@@ -164,7 +158,7 @@ export default function DicomAnnotator() {
 
     // Save JSON handler
     const handleSaveJSON = () => {
-        if (images.length === 0 || !dicomLoaded) return;
+        if (images.length === 0) return;
         
         const currentImage = images[currentPage - 1];
         const canvas = canvasRef.current;
@@ -401,14 +395,13 @@ export default function DicomAnnotator() {
                 {/* Zoom Controls - Moved from right panel */}
                 <div className="w-full rounded-xl overflow-hidden shadow-sm border border-indigo-100 bg-gradient-to-b from-white to-indigo-50 mb-4">
                     <div className="flex items-center justify-center py-3 bg-white border-b border-indigo-100">
-                        {dicomLoaded && (
-                            <ZoomControls 
+                        {<ZoomControls 
                                 zoom={zoom}
                                 zoomIn={zoomIn}
                                 zoomOut={zoomOut}
                                 resetZoom={resetZoom}
                             />
-                        )}
+                        }
                     </div>
                     {/* Load Annotation Button */}
                     <div className="p-4 flex justify-center">
@@ -437,7 +430,6 @@ export default function DicomAnnotator() {
                     <ImageNavigator 
                         currentPage={currentPage}
                         imagesLength={images.length}
-                        dicomLoaded={dicomLoaded}
                         handlePreviousPage={handlePreviousPage}
                         handleNextPage={handleNextPage}
                         handleSaveJSON={handleSaveJSON}
@@ -450,10 +442,10 @@ export default function DicomAnnotator() {
                     )}
                     <div className="relative w-full mt-4 overflow-hidden rounded-lg shadow-lg border border-gray-100">
                         {/* Zoom Instructions */}
-                        {showInstructions && dicomLoaded && (
+                        {showInstructions && (
                             <div className="absolute top-12 left-1/2 transform -translate-x-1/2 bg-indigo-800 bg-opacity-90 text-white p-3 rounded-lg z-20 shadow-lg">
                                 <p className="flex items-center gap-2 font-medium">
-                                    <span className="text-lg">⚙️</span> Ctrl + Mouse Wheel = Zoom | Ctrl + Click = Pan | Use controls in top right
+                                    <span className="text-lg">⚙️</span> Molette = Zoom | Clic droit = Déplacement
                                 </p>
                                 <button 
                                     className="absolute top-1 right-1 text-xs bg-indigo-700 hover:bg-indigo-600 rounded-full w-5 h-5 flex items-center justify-center"
@@ -473,9 +465,9 @@ export default function DicomAnnotator() {
                             style={{ transformOrigin: '0 0' }}
                         />
                     </div>
-                    {!dicomLoaded && !isDraggingOver && (
+                    {!isDraggingOver && (
                         <div className="mt-4 text-center text-gray-500 bg-gray-50 p-4 rounded-lg w-full">
-                            <p className="text-lg">Please select a DICOM or image file to begin</p>
+                            <p className="text-lg">Please select an image file to begin</p>
                             <p className="text-md text-gray-400">or drag and drop files here</p>
                         </div>
                     )}

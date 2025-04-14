@@ -1,9 +1,6 @@
 import { useState, useCallback } from "react";
-import * as cornerstone from "cornerstone-core";
-import * as cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 
 export function useImageLoader({ viewerRef, canvasRef }) {
-    const [dicomLoaded, setDicomLoaded] = useState(false);
     const [images, setImages] = useState([]);
     const [isDraggingOver, setIsDraggingOver] = useState(false);
 
@@ -13,22 +10,6 @@ export function useImageLoader({ viewerRef, canvasRef }) {
         if (canvas) {
             canvas.width = imageWidth;
             canvas.height = imageHeight;
-        }
-    };
-
-    const loadDicomImage = async (imageId, callback) => {
-        try {
-            const element = viewerRef.current;
-            cornerstone.enable(element);
-    
-            const image = await cornerstone.loadImage(imageId);
-            cornerstone.displayImage(element, image);
-            setDicomLoaded(true);
-    
-            adjustCanvasSize(image.width, image.height);
-            if (callback) setTimeout(callback, 50);
-        } catch (error) {
-            console.error("Erreur lors du chargement de l'image DICOM :", error);
         }
     };
 
@@ -43,7 +24,6 @@ export function useImageLoader({ viewerRef, canvasRef }) {
     
         imgElement.onload = () => {
             viewerRef.current.appendChild(imgElement);
-            setDicomLoaded(true);
     
             adjustCanvasSize(imgElement.naturalWidth, imgElement.naturalHeight);
             if (callback) setTimeout(callback, 50);
@@ -56,54 +36,23 @@ export function useImageLoader({ viewerRef, canvasRef }) {
             ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
         }
     
-        if (imageData.type === "dicom") {
-            loadDicomImage(imageData.url, callback);
-        } else if (imageData.type === "image") {
-            loadStandardImage(imageData.url, callback);
-        }
+        loadStandardImage(imageData.url, callback);
     }, [canvasRef, viewerRef]);
 
     const processFiles = useCallback((files) => {
-        if (files.length === 0) return;
-
         const imageFiles = [];
-        let filesProcessed = 0;
 
-        files.forEach((file) => {
-            if (file.type === "application/dicom" || file.name.endsWith(".dcm")) {
-                const fileReader = new FileReader();
-                fileReader.onload = function (e) {
-                    const imageId = cornerstoneWADOImageLoader.wadouri.fileManager.add(file);
-                    imageFiles.push({ type: "dicom", url: imageId, name: file.name });
-                    
-                    filesProcessed++;
-                    if (filesProcessed === files.length) {
-                        setImages(prevImages => [...prevImages, ...imageFiles]);
-                        if (imageFiles.length > 0) {
-                            loadImage(imageFiles[0]);
-                        }
-                    }
-                };
-                fileReader.readAsArrayBuffer(file);
-            } else if (file.type.startsWith("image/")) {
+        for (const file of files) {
+            if (file.type.startsWith("image/")) {
                 const url = URL.createObjectURL(file);
                 imageFiles.push({ type: "image", url, name: file.name });
-                
-                filesProcessed++;
-                if (filesProcessed === files.length) {
-                    setImages(prevImages => [...prevImages, ...imageFiles]);
-                    if (imageFiles.length > 0) {
-                        loadImage(imageFiles[0]);
-                    }
-                }
-            } else {
-                filesProcessed++;
-                 if (filesProcessed === files.length && imageFiles.length > 0) {
-                        setImages(prevImages => [...prevImages, ...imageFiles]);
-                        loadImage(imageFiles[0]);
-                 }
             }
-        });
+        }
+
+        if (imageFiles.length > 0) {
+            setImages(prev => [...prev, ...imageFiles]);
+            loadImage(imageFiles[0]);
+        }
     }, [loadImage]);
 
     const handleFileChange = (event) => {
@@ -134,7 +83,6 @@ export function useImageLoader({ viewerRef, canvasRef }) {
 
     return {
         images,
-        dicomLoaded,
         isDraggingOver,
         handleFileChange,
         handleDragOver,
