@@ -86,33 +86,25 @@ export default function DicomAnnotator() {
     // State for pan mode
     const [panEnabled, setPanEnabled] = useState(false);
 
-    // Effect to handle navigation when new images are added
     useEffect(() => {
         const currentLength = images.length;
         const prevLength = prevImagesLengthRef.current;
 
-        // Check if new images have been added (length increased)
-        // We also check prevLength !== 0 to avoid running this logic on the initial load,
-        // assuming initial load correctly sets page 1.
-        // If initial load can result in multiple images, adjust condition if needed.
         if (currentLength > prevLength) {
-            const lastPageIndex = currentLength; // Page numbers are 1-based
+            const lastPageIndex = currentLength;
 
-            setCurrentPage(lastPageIndex); // Navigate to the last page
-            resetZoom(); // Reset zoom for the new image
+            setCurrentPage(lastPageIndex); // Met à jour la page actuelle
+            resetZoom(); // Réinitialise le zoom
 
-            // Load the newly added last image
-            loadImage(images[lastPageIndex - 1], () => {
-                // Draw annotations for the new current page after the image is loaded
-                 drawAll(lastPageIndex);
-            });
+            // Pas besoin de recharger l'image ici, elle l'est déjà
+            // On attend juste un petit délai pour être sûr qu'elle est affichée
+            setTimeout(() => {
+                drawAll(lastPageIndex); // Dessine les annotations une fois que l'image est là
+            }, 100); // petit délai pour laisser le temps au DOM de s'ajuster
         }
 
-        // Update the ref *after* comparison for the next render cycle
         prevImagesLengthRef.current = currentLength;
-
-    // Dependencies: Ensure all functions/state used inside are listed
-    }, [images, setCurrentPage, resetZoom, loadImage, drawAll]);
+    }, [images, resetZoom, drawAll]);
 
     // Navigation handlers
     const handleNextPage = () => {
