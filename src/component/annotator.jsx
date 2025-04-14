@@ -139,7 +139,7 @@ export default function DicomAnnotator() {
         >
             <input
                 type="file"
-                accept=".dcm,.png,.jpg,.jpeg,.gif,.bmp"
+                accept=".dcm,.png,.jpg,.jpeg,.gif,.bmp,.tiff,.tif"
                 ref={fileInputRef}
                 onChange={handleFileChange}
                 className="hidden"

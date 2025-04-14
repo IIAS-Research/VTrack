@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import UTIF from 'utif';
 
 export function useImageLoader({ viewerRef, canvasRef }) {
     const [images, setImages] = useState([]);
@@ -39,11 +40,52 @@ export function useImageLoader({ viewerRef, canvasRef }) {
         loadStandardImage(imageData.url, callback);
     }, [canvasRef, viewerRef]);
 
-    const processFiles = useCallback((files) => {
+    const convertTiffToPng = async (file) => {
+        try {
+            const buffer = await file.arrayBuffer();
+            const ifds = UTIF.decode(buffer);
+
+            if (!ifds || ifds.length === 0) {
+                console.error("Could not decode TIFF file:", file.name);
+                return null;
+            }
+            
+            const firstImage = ifds[0]; 
+            UTIF.decodeImage(buffer, firstImage);
+            const rgba = UTIF.toRGBA8(firstImage);
+
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = firstImage.width;
+            tempCanvas.height = firstImage.height;
+            const ctx = tempCanvas.getContext('2d');
+
+            const imageData = ctx.createImageData(firstImage.width, firstImage.height);
+            imageData.data.set(rgba); 
+
+            ctx.putImageData(imageData, 0, 0);
+
+            const pngUrl = tempCanvas.toDataURL('image/png');
+            return { 
+                type: "image/png", 
+                url: pngUrl, 
+                name: file.name.replace(/\.(tif|tiff)$/i, '.png') 
+            };
+        } catch (error) {
+            console.error("Error processing TIFF file:", file.name, error);
+            return null;
+        }
+    };
+
+    const processFiles = useCallback(async (files) => {
         const imageFiles = [];
 
         for (const file of files) {
-            if (file.type.startsWith("image/")) {
+            if (file.type === "image/tiff") {
+                const pngFile = await convertTiffToPng(file);
+                if (pngFile) {
+                    imageFiles.push(pngFile);
+                }
+            } else if (file.type.startsWith("image/")) {
                 const url = URL.createObjectURL(file);
                 imageFiles.push({ type: "image", url, name: file.name });
             }
