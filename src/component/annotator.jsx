@@ -22,6 +22,7 @@ export default function DicomAnnotator() {
     const [selectedSkeletonLabel, setSelectedSkeletonLabel] = useState(null);
     const [selectedBboxLabel, setSelectedBboxLabel] = useState(null);
     const [keypointSize, setKeypointSize] = useState(5); // Default keypoint size
+    const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
     
     // Custom hooks for functionality
     const { 
@@ -93,6 +94,10 @@ export default function DicomAnnotator() {
             // Pas besoin de recharger l'image ici, elle l'est déjà
             // On attend juste un petit délai pour être sûr qu'elle est affichée
             setTimeout(() => {
+                const img = viewerRef.current?.querySelector("img");
+                if (img) {
+                    setImageDimensions({ width: img.naturalWidth, height: img.naturalHeight });
+                }
                 drawAll(lastPageIndex); // Dessine les annotations une fois que l'image est là
             }, 100); // petit délai pour laisser le temps au DOM de s'ajuster
         }
@@ -109,7 +114,8 @@ export default function DicomAnnotator() {
             // Reset zoom when changing pages
             resetZoom();
             
-            loadImage(images[nextPage - 1], () => {
+            loadImage(images[nextPage - 1], ({ width, height }) => {
+                setImageDimensions({ width, height });
                 // Callback after image is loaded and canvas size is adjusted
                 drawAll(nextPage);
             });
@@ -124,7 +130,8 @@ export default function DicomAnnotator() {
             // Reset zoom when changing pages
             resetZoom();
             
-            loadImage(images[prevPage - 1], () => {
+            loadImage(images[prevPage - 1], ({ width, height }) => {
+                setImageDimensions({ width, height });
                 // Callback after image is loaded and canvas size is adjusted
                 drawAll(prevPage);
             });
@@ -267,15 +274,6 @@ export default function DicomAnnotator() {
         drawAll(currentPage);
     }, [keypointSize]);
 
-
-    const clearCanvas = () => {
-        const canvas = canvasRef.current;
-        if (canvas) {
-            const ctx = canvas.getContext("2d");
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }
-    };
-
     return (
         <div className="px-6 mt-16 flex flex-col lg:flex-row gap-6">
             {/* Left panel - Action buttons */}
@@ -417,7 +415,7 @@ export default function DicomAnnotator() {
                     </div>
                 </div>
             </div>
-            
+
             {/* Middle panel - Image viewer */}
             <div 
                 className={`w-full lg:w-1/2 flex flex-col transition-all duration-200 ${isDraggingOver ? 'bg-indigo-100 scale-105 shadow-xl' : ''}`}
@@ -435,6 +433,12 @@ export default function DicomAnnotator() {
                         handleSaveJSON={handleSaveJSON}
                         chooseImageButton={chooseImageButtonJSX}
                     />
+
+                    {/* Dimensions de l'image */}
+                    <div className="text-sm text-gray-600 font-medium text-center mt-2">
+                    Dimensions : {imageDimensions.width} × {imageDimensions.height} px
+                    </div>
+                    
                     {isDraggingOver && (
                         <div className="mt-4 text-center text-indigo-600 font-semibold bg-indigo-50 p-4 rounded-lg w-full border-2 border-dashed border-indigo-400">
                             <p className="text-lg">Drop files here to upload</p>

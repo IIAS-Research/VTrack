@@ -26,8 +26,13 @@ export function useImageLoader({ viewerRef, canvasRef }) {
         imgElement.onload = () => {
             viewerRef.current.appendChild(imgElement);
     
+            const width = imgElement.naturalWidth;
+            const height = imgElement.naturalHeight;
+
             adjustCanvasSize(imgElement.naturalWidth, imgElement.naturalHeight);
-            if (callback) setTimeout(callback, 50);
+            if (callback) {
+                setTimeout(() => callback({ width, height }), 50);
+            }
         };
     };
     
