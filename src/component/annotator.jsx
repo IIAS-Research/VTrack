@@ -18,7 +18,8 @@ export default function DicomAnnotator() {
     
     // Initialize state
     const [currentPage, setCurrentPage] = useState(1);
-    const [selectedKeypointLabel, setSelectedKeypointLabel] = useState("Carotide");
+    const [selectedMode, setSelectedMode] = useState(null);
+    const [selectedKeypointLabel, setSelectedKeypointLabel] = useState(null);
     const [selectedSkeletonLabel, setSelectedSkeletonLabel] = useState(null);
     const [selectedBboxLabel, setSelectedBboxLabel] = useState(null);
     const [keypointSize, setKeypointSize] = useState(5); // Default keypoint size
@@ -490,7 +491,8 @@ export default function DicomAnnotator() {
                         <button 
                             className={`flex-1 py-3 px-4 font-medium transition-all duration-200 ${selectedKeypointLabel ? 'bg-indigo-600 text-white' : 'bg-white text-indigo-700 hover:bg-indigo-50'}`}
                             onClick={() => {
-                                setSelectedKeypointLabel("Carotide");
+                                setSelectedMode("keypoint")
+                                setSelectedKeypointLabel(null);
                                 setSelectedSkeletonLabel(null);
                                 setSelectedBboxLabel(null);
                             }}
@@ -500,7 +502,8 @@ export default function DicomAnnotator() {
                         <button 
                             className={`flex-1 py-3 px-4 font-medium transition-all duration-200 ${selectedSkeletonLabel ? 'bg-indigo-600 text-white' : 'bg-white text-indigo-700 hover:bg-indigo-50'}`}
                             onClick={() => {
-                                setSelectedSkeletonLabel("Carotide-Carotide");
+                                setSelectedMode("skeleton")
+                                setSelectedSkeletonLabel(null);
                                 setSelectedKeypointLabel(null);
                                 setSelectedBboxLabel(null);
                             }}
@@ -510,7 +513,8 @@ export default function DicomAnnotator() {
                         <button 
                             className={`flex-1 py-3 px-4 font-medium transition-all duration-200 ${selectedBboxLabel ? 'bg-indigo-600 text-white' : 'bg-white text-indigo-700 hover:bg-indigo-50'}`}
                             onClick={() => {
-                                setSelectedBboxLabel("Occlusion");
+                                setSelectedMode("bbox")
+                                setSelectedBboxLabel(null);
                                 setSelectedKeypointLabel(null);
                                 setSelectedSkeletonLabel(null);
                             }}
@@ -522,7 +526,7 @@ export default function DicomAnnotator() {
                 
                 <div className="mb-4 flex flex-col gap-4">
                     {/* Conditional rendering based on selected mode */}
-                    {selectedKeypointLabel && (
+                    {selectedMode === "keypoint" && (
                         <div className="rounded-lg border border-gray-200 shadow-sm p-3 bg-gradient-to-b from-white to-gray-50">
                             <h4 className="text-lg font-semibold mb-3 text-indigo-700 border-b border-gray-100 pb-2">Vaisseaux</h4>
                             <VesselLabels 
@@ -533,7 +537,7 @@ export default function DicomAnnotator() {
                         </div>
                     )}
 
-                    {selectedSkeletonLabel && (
+                    {selectedMode === "skeleton" && (
                         <div className="rounded-lg border border-gray-200 shadow-sm p-3 bg-gradient-to-b from-white to-gray-50">
                             <h4 className="text-lg font-semibold mb-3 text-indigo-700 border-b border-gray-100 pb-2">Squelettes</h4>
                             <SkeletonLabels 
@@ -544,7 +548,7 @@ export default function DicomAnnotator() {
                         </div>
                     )}
 
-                    {selectedBboxLabel && (
+                    {selectedMode === "bbox" && (
                         <div className="rounded-lg border border-gray-200 shadow-sm p-3 bg-gradient-to-b from-white to-gray-50">
                             <h4 className="text-lg font-semibold mb-3 text-indigo-700 border-b border-gray-100 pb-2">Occlusions</h4>
                             <BboxLabels 
