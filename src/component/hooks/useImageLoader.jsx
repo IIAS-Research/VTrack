@@ -4,6 +4,7 @@ import UTIF from 'utif';
 export function useImageLoader({ viewerRef, canvasRef }) {
     const [images, setImages] = useState([]);
     const [isDraggingOver, setIsDraggingOver] = useState(false);
+    const [imgLoaded, setImgLoaded] = useState(false);
 
     const adjustCanvasSize = (imageWidth, imageHeight) => {
         const canvas = canvasRef.current;
@@ -25,6 +26,7 @@ export function useImageLoader({ viewerRef, canvasRef }) {
     
         imgElement.onload = () => {
             viewerRef.current.appendChild(imgElement);
+            setImgLoaded(true);
     
             const width = imgElement.naturalWidth;
             const height = imgElement.naturalHeight;
@@ -130,6 +132,7 @@ export function useImageLoader({ viewerRef, canvasRef }) {
 
     return {
         images,
+        imgLoaded,
         isDraggingOver,
         handleFileChange,
         handleDragOver,

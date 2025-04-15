@@ -26,7 +26,8 @@ export default function DicomAnnotator() {
     
     // Custom hooks for functionality
     const { 
-        images, 
+        images,
+        imgLoaded,
         isDraggingOver,
         handleFileChange, 
         handleDragOver,
@@ -428,6 +429,7 @@ export default function DicomAnnotator() {
                     <ImageNavigator 
                         currentPage={currentPage}
                         imagesLength={images.length}
+                        imgLoaded={imgLoaded}
                         handlePreviousPage={handlePreviousPage}
                         handleNextPage={handleNextPage}
                         handleSaveJSON={handleSaveJSON}

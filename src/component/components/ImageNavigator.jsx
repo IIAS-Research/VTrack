@@ -4,7 +4,7 @@ import { ArrowLeft, ArrowRight, Save } from "lucide-react";
 export function ImageNavigator({ 
     currentPage, 
     imagesLength, 
-    dicomLoaded,
+    imgLoaded, 
     handlePreviousPage, 
     handleNextPage, 
     handleSaveJSON,
@@ -46,9 +46,9 @@ export function ImageNavigator({
             
             <button 
                 onClick={handleSaveJSON} 
-                disabled={!dicomLoaded} 
+                disabled={!imgLoaded} 
                 className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg shadow-sm transition-all duration-200 ml-2 ${
-                    !dicomLoaded 
+                    !imgLoaded 
                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
                     : 'bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:shadow-md hover:scale-105'
                 }`}
