@@ -195,7 +195,7 @@ export default function DicomAnnotator() {
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `${currentImage.name}.json`;
+        a.download = `${currentImage.name.replace(/\.[^/.]+$/, "")}.json`;
         a.click();
         URL.revokeObjectURL(url);
     };

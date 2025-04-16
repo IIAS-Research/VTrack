@@ -44,8 +44,13 @@ export function ImageNavigator({
                 <ArrowRight size={16} />
             </button>
             
-            <button 
-                onClick={handleSaveJSON} 
+            <button
+                type="button"
+                onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleSaveJSON();
+                }}
                 disabled={!imgLoaded} 
                 className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg shadow-sm transition-all duration-200 ml-2 ${
                     !imgLoaded 
