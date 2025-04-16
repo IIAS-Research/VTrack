@@ -11,9 +11,12 @@ export function VesselLabels({ title, colors, selectedLabel, setSelectedLabel })
         "PCA2 -> PCA3"
     ];
 
+    const bboxLabels = ["Occlusion", 
+                        "Hide Region"];
+
     const vesselLabels = Object.keys(colors)
         .filter(label => !bifurcationLabels.includes(label))
-        .filter(label => label !== "Occlusion");
+        .filter(label => !bboxLabels.includes(label));
 
     return (
         <div className="... w-full ...">

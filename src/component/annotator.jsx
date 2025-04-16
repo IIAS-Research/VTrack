@@ -300,7 +300,7 @@ export default function DicomAnnotator() {
                             className="bg-red-500 text-white px-2 py-2 rounded-lg hover:bg-red-600 shadow-sm flex items-center justify-center gap-1"
                             onClick={resetBboxes}
                         >
-                            Occlusions
+                            Bouning Boxes
                         </button>
                     </div>
                 </div>
@@ -353,7 +353,7 @@ export default function DicomAnnotator() {
                                 className="bg-amber-500 text-white rounded-lg p-2 text-sm flex items-center justify-center gap-2 w-full hover:bg-amber-600 shadow-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <Undo2 size={16} />
-                                Undo Occlusion
+                                Undo Bouning Boxe
                             </button>
                             <button 
                                 onClick={redoLastBbox}
@@ -361,7 +361,7 @@ export default function DicomAnnotator() {
                                 className="bg-sky-500 text-white rounded-lg p-2 text-sm flex items-center justify-center gap-2 w-full hover:bg-sky-600 shadow-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <Redo2 size={16} />
-                                Redo Occlusion
+                                Redo Bounding Box
                             </button>
                         </div>
 
@@ -519,7 +519,7 @@ export default function DicomAnnotator() {
                                 setSelectedSkeletonLabel(null);
                             }}
                         >
-                            Occlusions
+                            Bounding Boxes
                         </button>
                     </div>
                 </div>

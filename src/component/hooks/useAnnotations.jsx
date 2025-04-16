@@ -26,7 +26,8 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
         "PCA2 -> PCA3": "#87CEEB",                 // bleu ciel
         
         // Couleur pour les Bbox d'occlusion
-        "Occlusion": "#FF0000"                     // rouge pour les occlusions
+        "Occlusion": "#FF0000",                     // rouge pour les occlusions
+        "Hide Region": "#000000"
     };
 
     // Helper to initialize page data if it doesn't exist
@@ -113,14 +114,22 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
 
         const boxes = bboxes[page]?.boxes || []; // Access boxes array
         boxes.forEach(({ x1, y1, x2, y2, label }) => {
-            ctx.strokeStyle = colors[label];
-            ctx.lineWidth = 2;
-            ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
-            
-            // Ajout du label
-            ctx.fillStyle = colors[label];
-            ctx.font = "12px Arial";
-            ctx.fillText(label, x1, y1 - 5);
+            if (label === "Hide Region") {
+                // Dessin spécial : remplissage noir
+                ctx.fillStyle = "#000000";
+                ctx.globalAlpha = 0.4; // ou 1.0 si tu veux du noir opaque
+                ctx.fillRect(x1, y1, x2 - x1, y2 - y1);
+                ctx.globalAlpha = 1.0;
+            } else {
+                // Dessin normal
+                ctx.strokeStyle = colors[label];
+                ctx.lineWidth = 2;
+                ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+        
+                ctx.fillStyle = colors[label];
+                ctx.font = "12px Arial";
+                ctx.fillText(label, x1, y1 - 5);
+            }
         });
 
         // Dessin de la Bbox en cours de création
@@ -262,8 +271,9 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
             return;
         }
 
-        // Gestion des Bbox (uniquement pour les occlusions)
-        if (selectedBboxLabel === "Occlusion") {
+        // Gestion des Bbox 
+        const bboxLabels = ["Occlusion", "Hide Region"];
+        if (bboxLabels.includes(selectedBboxLabel)) {
             console.log("Handling Bbox click"); // Log bbox handling
             if (!isDrawingBbox) {
                 setIsDrawingBbox(true);
@@ -297,7 +307,7 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
                         y1: startY,
                         x2: endX,
                         y2: endY,
-                        label: "Occlusion"
+                        label: selectedBboxLabel
                     }];
                     return newBboxes;
                 });
@@ -310,7 +320,7 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
     };
 
     const handleMouseMove = (event) => {
-        if (!isDrawingBbox || !bboxStart || selectedBboxLabel !== "Occlusion") return; // Ensure bbox mode
+        if (!isDrawingBbox || !bboxStart || !["Occlusion", "Hide Region"].includes(selectedBboxLabel)) return; // Ensure bbox mode
 
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -341,7 +351,7 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
         // The useEffect will clear and redraw everything, and then this temporary
         // rect will be drawn over it immediately on mouse move.
         const ctx = canvas.getContext("2d");
-        ctx.strokeStyle = colors["Occlusion"];
+        ctx.strokeStyle = colors[selectedBboxLabel];
         ctx.lineWidth = 2;
         // Use currentX/currentY from state if available, otherwise use event's x/y
         const currentX = bboxStart?.currentX ?? x;
