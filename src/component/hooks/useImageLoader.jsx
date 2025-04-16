@@ -12,6 +12,9 @@ export function useImageLoader({ viewerRef, canvasRef }) {
         if (canvas) {
             canvas.width = imageWidth;
             canvas.height = imageHeight;
+
+            canvas.style.width = imageWidth + 'px';
+            canvas.style.height = imageHeight + 'px';
         }
     };
 

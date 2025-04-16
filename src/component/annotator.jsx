@@ -466,7 +466,7 @@ export default function DicomAnnotator() {
                         <div ref={viewerRef} className="w-full h-full" style={{ transformOrigin: '0 0' }}></div>
                         <canvas
                             ref={canvasRef}
-                            className={`absolute top-0 left-0 w-full h-full pointer-events-auto ${panEnabled ? 'cursor-grab' : 'cursor-crosshair'}`}
+                            className={`absolute top-0 left-0 pointer-events-auto ${panEnabled ? 'cursor-grab' : 'cursor-crosshair'}`}
                             onClick={handleCanvasClick}
                             onMouseMove={handleMouseMove}
                             style={{ transformOrigin: '0 0' }}
