@@ -1,0 +1,10 @@
+services:
+  vascu-track:
+    image: nginx:alpine
+    container_name: vascu-track-services
+    volumes:
+      ./nginx/vascu_track.conf:/etc/nginx/conf.d/default.conf
+      -vascu_track_spa_build:./dist
+    ports:
+      -"80:80"
+
