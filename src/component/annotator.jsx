@@ -176,16 +176,16 @@ export default function DicomAnnotator() {
             filename: currentImage.name,
             width: canvas.width,
             height: canvas.height,
-            vessel: keypoints ? keypoints.map(({ x, y, label, parent }, index) => ({
+            vessel: keypoints ? keypoints.map(({ x, y, label, parents, parent }, index) => ({
                 id: index,
-                x, 
-                y, 
-                label, 
-                parent: parent ? 
-                    (Array.isArray(parent) ? 
-                        parent.map(p => keypoints.findIndex(kp => kp.x === p.x && kp.y === p.y && kp.label === p.label)) : 
-                        keypoints.findIndex(kp => kp.x === parent.x && kp.y === parent.y && kp.label === parent.label)) 
-                    : null
+                x,
+                y,
+                label,
+                parents: Array.isArray(parents)
+                    ? parents.map(p => keypoints.findIndex(kp => kp.x === p.x && kp.y === p.y && kp.label === p.label))
+                    : parent
+                        ? [keypoints.findIndex(kp => kp.x === parent.x && kp.y === parent.y && kp.label === parent.label)]
+                        : []
             })) : [],
             skeleton: skeletons || [],
             bbox: bboxes || []
@@ -210,18 +210,17 @@ export default function DicomAnnotator() {
                 const data = JSON.parse(e.target.result);
     
                 if (data.vessel) {
-                    const loadedKeypoints = data.vessel.map(({ x, y, label, parent: parentIndex }) => ({
+                    const loadedKeypoints = data.vessel.map(({ x, y, label, parents }) => ({
                         x,
                         y,
                         label,
-                        parent: parentIndex !== null && parentIndex >= 0 && parentIndex < data.vessel.length 
-                            ? data.vessel[parentIndex] 
-                            : null
+                        parents: Array.isArray(parents) ? parents.map(i => data.vessel[i]) : []
                     }));
                     const finalLoadedKeypoints = loadedKeypoints.map((kp, index, arr) => {
-                        if (kp.parent) {
-                            const parentData = kp.parent;
-                            kp.parent = arr.find(p => p.x === parentData.x && p.y === parentData.y && p.label === parentData.label);
+                        if (kp.parents) {
+                            kp.parents = kp.parents.map(parentData =>
+                                arr.find(p => p.x === parentData.x && p.y === parentData.y && p.label === parentData.label)
+                            ).filter(Boolean);
                         }
                         return kp;
                     });

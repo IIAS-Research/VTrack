@@ -75,20 +75,24 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
         // ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         const points = keypoints[page]?.points || []; // Access points array
-        points.forEach(({ x, y, label, parent }) => {
+        points.forEach(({ x, y, label, parents }) => {
             ctx.fillStyle = colors[label];
             ctx.beginPath();
             ctx.arc(x, y, keypointSize, 0, 2 * Math.PI);
             ctx.fill();
 
-            if (parent && parent.label === label) {
-                ctx.strokeStyle = colors[label];
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(parent.x, parent.y);
-                ctx.lineTo(x, y);
-                ctx.stroke();
-            }
+            if (parents && parents.length > 0) {
+                parents.forEach(parent => {
+                    if (parent.label === label) {
+                        ctx.strokeStyle = colors[label];
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.moveTo(parent.x, parent.y);
+                        ctx.lineTo(x, y);
+                        ctx.stroke();
+                    }
+                });
+            }            
         });
     };
 
@@ -99,7 +103,7 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
 
         const segments = skeletons[page]?.segments || []; // Access segments array
         segments.forEach(({ x1, y1, label1, x2, y2, label2 }) => {
-            ctx.strokeStyle = colors[label2];
+            ctx.strokeStyle = colors[label1];
             ctx.beginPath();
             ctx.moveTo(x1, y1);
             ctx.lineTo(x2, y2);
@@ -197,8 +201,13 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
             // --- Refinement: Calculate parent and new point *before* the updater --- 
             const currentPoints = keypoints[currentPage]?.points || [];
             const lastPointOfLabel = currentPoints.filter(k => k.label === selectedKeypointLabel).slice(-1)[0];
-            const parent = lastPointOfLabel || null;
-            const newPoint = { x, y, label: selectedKeypointLabel, parent };
+            
+            const newPoint = {
+                x,
+                y,
+                label: selectedKeypointLabel,
+                parents: lastPointOfLabel ? [lastPointOfLabel] : []
+              };
             // --- End Refinement ---
 
             setKeypoints(prev => {
@@ -242,8 +251,18 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
                 setStartPoint(closest);
                 // No drawAll needed here, just setting start point
             } else {
+                // Ne pas connecter un point à lui-même
+                if (
+                    startPoint.x === closest.x &&
+                    startPoint.y === closest.y &&
+                    startPoint.label === closest.label
+                ) {
+                    console.warn("Squelette ignoré : un point ne peut pas se connecter à lui-même.");
+                    setStartPoint(null);
+                    return;
+                }
                 clearHistory('skeleton'); // Clear redo history on new action
-                 setSkeletons(prev => {
+                setSkeletons(prev => {
                     const now = event.timeStamp;
                     const timeSinceLastClick = now - lastClickTimestampRef.current;
             
@@ -263,6 +282,29 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
                         x2: closest.x, y2: closest.y, label2: closest.label
                     }];
                     return newSkeletons;
+                });
+                // ✅ Mettre à jour le parent du point destination
+                setKeypoints(prev => {
+                    const newKeypoints = { ...prev };
+                    const pageData = newKeypoints[currentPage];
+                    if (!pageData) return prev;
+                
+                    const updatedPoints = pageData.points.map(p => {
+                        if (
+                            p.x === closest.x &&
+                            p.y === closest.y &&
+                            p.label === closest.label
+                        ) {
+                            return {
+                                ...p,
+                                parents: [...(p.parents || []), startPoint]
+                            };
+                        }
+                        return p;
+                    });
+                
+                    newKeypoints[currentPage] = { ...pageData, points: updatedPoints };
+                    return newKeypoints;
                 });
 
                 setStartPoint(null);
