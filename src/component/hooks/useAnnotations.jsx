@@ -411,6 +411,16 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
             const points = [...pageData.points];
             const history = [...pageData.history];
             const removedPoint = points.pop();
+            // Nettoyage des références des parents dans les autres points
+            const cleanedPoints = points.map(p => ({
+                ...p,
+                parents: (p.parents || []).filter(
+                    parent =>
+                        parent.x !== removedPoint.x ||
+                        parent.y !== removedPoint.y ||
+                        parent.label !== removedPoint.label
+                )
+            }));
 
             let undoneSkeletons = []; // Store skeletons removed due to this keypoint undo
 
@@ -445,7 +455,8 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
 
             // Push the keypoint and its associated undone skeletons to history
             history.push({ ...removedPoint, undoneSkeletons });
-            newKeypoints[currentPage] = { points, history };
+            // newKeypoints[currentPage] = { points, history };
+            newKeypoints[currentPage] = { points: cleanedPoints, history };
 
             return newKeypoints;
         });
