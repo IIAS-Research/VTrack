@@ -177,17 +177,13 @@ export default function DicomAnnotator() {
             filename: currentImage.name,
             width: canvas.width,
             height: canvas.height,
-            vessel: keypoints ? keypoints.map(({ x, y, label, parents, parent }, index) => ({
-                id: index,
+            vessel: keypoints.map(({ id, x, y, label, parents }) => ({
+                id,
                 x,
                 y,
                 label,
-                parents: Array.isArray(parents)
-                    ? parents.map(p => keypoints.findIndex(kp => kp.x === p.x && kp.y === p.y && kp.label === p.label))
-                    : parent
-                        ? [keypoints.findIndex(kp => kp.x === parent.x && kp.y === parent.y && kp.label === parent.label)]
-                        : []
-            })) : [],
+                parents: parents || []
+            })),
             skeleton: skeletons || [],
             bbox: bboxes || []
         }, null, 2);

@@ -211,7 +211,7 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
                 x,
                 y,
                 label: selectedKeypointLabel,
-                parents: lastPointOfLabel ? [lastPointOfLabel] : []
+                parents: lastPointOfLabel ? [lastPointOfLabel.id] : []
               };
             // --- End Refinement ---
 
@@ -302,7 +302,7 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
                         ) {
                             return {
                                 ...p,
-                                parents: [...(p.parents || []), startPoint]
+                                parents: [...(p.parents || []), startPoint.id]
                             };
                         }
                         return p;
