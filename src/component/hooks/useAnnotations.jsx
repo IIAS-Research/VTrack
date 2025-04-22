@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 
 export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedKeypointLabel, selectedSkeletonLabel, selectedBboxLabel }) {
     // State structure: { pageNum: { points: [], history: [] } } etc.
+    const keypointIdRef = useRef(0);
+
     const [keypoints, setKeypoints] = useState({});
     const [skeletons, setSkeletons] = useState({});
     const [bboxes, setBboxes] = useState({});
@@ -83,13 +85,15 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
 
             if (parents && parents.length > 0) {
                 parents.forEach(parent => {
-                    if (parent.label === label) {
-                        ctx.strokeStyle = colors[label];
-                        ctx.lineWidth = 2;
-                        ctx.beginPath();
-                        ctx.moveTo(parent.x, parent.y);
-                        ctx.lineTo(x, y);
-                        ctx.stroke();
+                    if (typeof parent === 'object' && parent?.x !== undefined) {
+                        if (parent.label === label) {
+                            ctx.strokeStyle = colors[label];
+                            ctx.lineWidth = 2;
+                            ctx.beginPath();
+                            ctx.moveTo(parent.x, parent.y);
+                            ctx.lineTo(x, y);
+                            ctx.stroke();
+                        }
                     }
                 });
             }            
@@ -203,6 +207,7 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
             const lastPointOfLabel = currentPoints.filter(k => k.label === selectedKeypointLabel).slice(-1)[0];
             
             const newPoint = {
+                id: keypointIdRef.current++,  // auto-incrément
                 x,
                 y,
                 label: selectedKeypointLabel,

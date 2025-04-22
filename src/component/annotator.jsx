@@ -15,6 +15,7 @@ export default function DicomAnnotator() {
     const viewerRef = useRef(null);
     const canvasRef = useRef(null);
     const prevImagesLengthRef = useRef(0); // Add this ref to track previous image count
+    const keypointIdRef = useRef(0);
     
     // Initialize state
     const [currentPage, setCurrentPage] = useState(1);
@@ -208,23 +209,22 @@ export default function DicomAnnotator() {
         reader.onload = (e) => {
             try {
                 const data = JSON.parse(e.target.result);
-    
+
+                // Géstion par id cette fois ci et plus par find (erreur si 2 labels sont identiques)
                 if (data.vessel) {
-                    const loadedKeypoints = data.vessel.map(({ x, y, label, parents }) => ({
-                        x,
-                        y,
-                        label,
-                        parents: Array.isArray(parents) ? parents.map(i => data.vessel[i]) : []
-                    }));
-                    const finalLoadedKeypoints = loadedKeypoints.map((kp, index, arr) => {
-                        if (kp.parents) {
-                            kp.parents = kp.parents.map(parentData =>
-                                arr.find(p => p.x === parentData.x && p.y === parentData.y && p.label === parentData.label)
-                            ).filter(Boolean);
-                        }
-                        return kp;
+                    const idToPointMap = {};
+                    data.vessel.forEach(p => {
+                        idToPointMap[p.id] = { ...p };
                     });
-                    setKeypoints(finalLoadedKeypoints);
+                
+                    data.vessel.forEach(p => {
+                        idToPointMap[p.id].parents = (p.parents || []).map(pid => idToPointMap[pid]);
+                    });
+
+                    const finalKeypoints = Object.values(idToPointMap);
+                    keypointIdRef.current = Math.max(...finalKeypoints.map(p => p.id)) + 1;
+
+                    setKeypoints(Object.values(idToPointMap));
                 }
     
                 if (data.skeleton) {
