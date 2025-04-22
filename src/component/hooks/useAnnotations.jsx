@@ -84,8 +84,8 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
             ctx.fill();
 
             if (parents && parents.length > 0) {
-                parents.forEach(parent => {
-                    if (typeof parent === 'object' && parent?.x !== undefined) {
+                parents.forEach(parentId => {
+                        const parent = points.find(p => p.id === parentId);
                         if (parent.label === label) {
                             ctx.strokeStyle = colors[label];
                             ctx.lineWidth = 2;
@@ -94,7 +94,6 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
                             ctx.lineTo(x, y);
                             ctx.stroke();
                         }
-                    }
                 });
             }            
         });
@@ -406,110 +405,134 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
         ctx.strokeRect(bboxStart.x, bboxStart.y, currentX - bboxStart.x, currentY - bboxStart.y);
     };
 
-    const undoLastKeypoint = () => {
-        ensurePageData(currentPage);
-        setKeypoints(prev => {
-            const newKeypoints = { ...prev };
-            const pageData = newKeypoints[currentPage];
-            if (!pageData || pageData.points.length === 0) return prev; // No points to undo
-
-            const points = [...pageData.points];
-            const history = [...pageData.history];
-            const removedPoint = points.pop();
-            // Nettoyage des références des parents dans les autres points
-            const cleanedPoints = points.map(p => ({
+    const removeKeypointAndRelations = (pointId, page) => {
+        const pointData = keypoints[page];
+        const skeletonData = skeletons[page];
+        if (!pointData || !skeletonData) return;
+    
+        const removedPoint = pointData.points.find(p => p.id === pointId);
+        if (!removedPoint) return;
+    
+        // Nettoyage des parents dans tous les points
+        const cleanedPoints = pointData.points
+            .filter(p => p.id !== pointId)  // Supprimer le point lui-même
+            .map(p => ({
                 ...p,
-                parents: (p.parents || []).filter(
-                    parent =>
-                        parent.x !== removedPoint.x ||
-                        parent.y !== removedPoint.y ||
-                        parent.label !== removedPoint.label
-                )
+                parents: (p.parents || []).filter(pid => pid !== pointId)
             }));
-
-            let undoneSkeletons = []; // Store skeletons removed due to this keypoint undo
-
-             // Remove related skeletons and store them
-            setSkeletons(prevSkel => {
-                const newSkeletons = { ...prevSkel };
-                const skelPageData = newSkeletons[currentPage];
-                if (!skelPageData) return prevSkel; // No skeleton data for this page
-
-                const currentSegments = skelPageData.segments || [];
-                const remainingSegments = [];
-                
-                currentSegments.forEach(s => {
-                    const isConnected = (s.x1 === removedPoint.x && s.y1 === removedPoint.y && s.label1 === removedPoint.label) ||
-                                      (s.x2 === removedPoint.x && s.y2 === removedPoint.y && s.label2 === removedPoint.label);
-                    if (isConnected) {
-                        undoneSkeletons.push(s);
-                    } else {
-                        remainingSegments.push(s);
-                    }
-                });
-
-                // Only update if skeletons were actually removed
-                if (undoneSkeletons.length > 0) {
-                    // Note: We are NOT adding these to skeleton history here.
-                    // They are linked to the keypoint history instead.
-                     newSkeletons[currentPage] = { ...skelPageData, segments: remainingSegments };
-                     return newSkeletons;
-                }
-                return prevSkel; // No change to skeletons
-            });
-
-            // Push the keypoint and its associated undone skeletons to history
-            history.push({ ...removedPoint, undoneSkeletons });
-            // newKeypoints[currentPage] = { points, history };
-            newKeypoints[currentPage] = { points: cleanedPoints, history };
-
-            return newKeypoints;
-        });
+    
+        // Supprimer tous les segments où ce point apparaît
+        const removedSegments = [];
+        const remainingSegments = [];
+    
+        for (const seg of skeletonData.segments) {
+            if (
+                seg.x1 === removedPoint.x && seg.y1 === removedPoint.y && seg.label1 === removedPoint.label ||
+                seg.x2 === removedPoint.x && seg.y2 === removedPoint.y && seg.label2 === removedPoint.label
+            ) {
+                removedSegments.push(seg);
+            } else {
+                remainingSegments.push(seg);
+            }
+        }
+    
+        // Mettre à jour les states
+        setKeypoints(prev => ({
+            ...prev,
+            [page]: {
+                points: cleanedPoints,
+                history: [...(prev[page]?.history || []), { ...removedPoint, undoneSkeletons: removedSegments }]
+            }
+        }));
+    
+        setSkeletons(prev => ({
+            ...prev,
+            [page]: {
+                segments: remainingSegments,
+                history: prev[page]?.history || []
+            }
+        }));
     };
 
-     const redoLastKeypoint = () => {
+    const undoLastKeypoint = () => {
+        ensurePageData(currentPage);
+    
+        const pageData = keypoints[currentPage];
+        if (!pageData || pageData.points.length === 0) return;
+    
+        const lastPoint = pageData.points[pageData.points.length - 1];
+        if (!lastPoint) return;
+    
+        removeKeypointAndRelations(lastPoint.id, currentPage);
+    };
+
+    const restoreKeypointAndRelations = (point, segmentsToRestore, page) => {
+        // Restaurer le point
+        setKeypoints(prev => {
+            const pageData = prev[page] || { points: [], history: [] };
+
+            const alreadyExists = pageData.points.some(p => p.id === point.id);
+            if (alreadyExists) return prev;
+
+            return {
+                ...prev,
+                [page]: {
+                    points: [...pageData.points, point],
+                    history: pageData.history
+                }
+            };
+        });
+    
+        // Restaurer les skeletons associés
+        if (segmentsToRestore && segmentsToRestore.length > 0) {
+            setSkeletons(prev => {
+                const pageData = prev[page] || { segments: [], history: [] };
+                const currentSegments = pageData.segments;
+                const segmentSet = new Set(currentSegments.map(s => JSON.stringify(s)));
+    
+                const newSegments = [...currentSegments];
+                for (const seg of segmentsToRestore) {
+                    const key = JSON.stringify(seg);
+                    if (!segmentSet.has(key)) {
+                        newSegments.push(seg);
+                        segmentSet.add(key);
+                    }
+                }
+    
+                return {
+                    ...prev,
+                    [page]: {
+                        segments: newSegments,
+                        history: []  // On clear l'historique ici aussi
+                    }
+                };
+            });
+        }
+    };
+
+    const redoLastKeypoint = () => {
         ensurePageData(currentPage);
         setKeypoints(prev => {
-            const newKeypoints = { ...prev };
-            const pageData = newKeypoints[currentPage];
-            if (!pageData || pageData.history.length === 0) return prev; // No history to redo
-
-            const points = [...pageData.points];
+            const pageData = prev[currentPage];
+            if (!pageData || pageData.history.length === 0) return prev;
+    
+            const newPoints = [...pageData.points];
             const history = [...pageData.history];
-            const restoredHistoryEntry = history.pop();
-            const { undoneSkeletons, ...restoredPoint } = restoredHistoryEntry; // Separate point from its skeletons
-
-            points.push(restoredPoint);
-            newKeypoints[currentPage] = { points, history };
-
-             // Restore related skeletons if any were stored
-            if (undoneSkeletons && undoneSkeletons.length > 0) {
-                 setSkeletons(prevSkel => {
-                    const newSkeletons = { ...prevSkel };
-                    const skelPageData = newSkeletons[currentPage];
-                    if (!skelPageData) return prevSkel; // Should exist if keypoint existed
-
-                    // Add stored skeletons back to segments. Handle potential duplicates just in case.
-                    const currentSegments = skelPageData.segments || [];
-                    const restoredSegmentSet = new Set(currentSegments.map(s => JSON.stringify(s)));
-                    undoneSkeletons.forEach(skel => {
-                        const skelString = JSON.stringify(skel);
-                        if (!restoredSegmentSet.has(skelString)) {
-                            currentSegments.push(skel);
-                            restoredSegmentSet.add(skelString); // Add to set to prevent duplicates within the undoneSkeletons array itself
-                        }
-                    });
-                    
-                    // Clear skeleton history as this complex redo invalidates it
-                    newSkeletons[currentPage] = { ...skelPageData, segments: currentSegments, history: [] }; 
-                    return newSkeletons;
-                 });
-            } else {
-                // If no skeletons were associated, still clear skeleton history
-                clearHistory('skeleton');
-            }
-
-            return newKeypoints;
+            const restoredEntry = history.pop();
+    
+            const { undoneSkeletons, ...restoredPoint } = restoredEntry;
+    
+            // Restaurer le point et ses relations
+            restoreKeypointAndRelations(restoredPoint, undoneSkeletons, currentPage);
+    
+            // Retourner un nouvel état de keypoints sans le point dans l'historique
+            return {
+                ...prev,
+                [currentPage]: {
+                    points: newPoints,
+                    history
+                }
+            };
         });
     };
 
