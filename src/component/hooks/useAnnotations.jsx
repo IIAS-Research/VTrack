@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { labelColors } from "../constants/labelColors";
 
 export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedKeypointLabel, selectedSkeletonLabel, selectedBboxLabel }) {
     // State structure: { pageNum: { points: [], history: [] } } etc.
@@ -13,6 +14,7 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
     const [bboxStart, setBboxStart] = useState(null);
     const lastClickTimestampRef = useRef(0); // Ref to store the last click time
 
+    /*
     const colors = {
         ICA: "#FFADAD", MCA1: "#9BB1FF", MCA2: "#A0E7E5", MCA3: "#FFD6A5",
         PCA1: "#D4A5A5", PCA2: "#C6A2FC", PCA3: "#FFB5E8", BA: "#A7E9AF",
@@ -31,7 +33,8 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
         "Occlusion": "#FF0000",                     // rouge pour les occlusions
         "Hide Region": "#000000"
     };
-
+*/
+    const colors = labelColors
     // Helper to initialize page data if it doesn't exist
     const ensurePageData = (page) => {
         setKeypoints(prev => ({

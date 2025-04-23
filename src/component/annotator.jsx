@@ -6,6 +6,7 @@ import { SkeletonLabels } from "./components/SkeletonLabels";
 import { BboxLabels } from "./components/BboxLabels";
 import { ImageNavigator } from "./components/ImageNavigator";
 import { ZoomControls } from "./components/ZoomControls";
+import { vesselGroups } from './constants/vesselGroups';
 import { useAnnotations } from "./hooks/useAnnotations";
 import { Undo2, Redo2 } from "lucide-react";
 
@@ -26,6 +27,8 @@ export default function DicomAnnotator() {
     const [selectedBboxLabel, setSelectedBboxLabel] = useState(null);
     const [keypointSize, setKeypointSize] = useState(5); // Default keypoint size
     const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
+    const [selectedVesselGroup, setSelectedVesselGroup] = useState("Cranial");
+
     
     // Custom hooks for functionality
     const { 
@@ -564,6 +567,8 @@ export default function DicomAnnotator() {
                                 colors={colors}
                                 selectedLabel={selectedKeypointLabel}
                                 setSelectedLabel={handleKeypointLabelSelect}
+                                selectedGroup={selectedVesselGroup}
+                                setSelectedGroup={setSelectedVesselGroup}
                             />
                         </div>
                     )}
