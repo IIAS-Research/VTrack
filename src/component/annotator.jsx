@@ -520,9 +520,9 @@ export default function DicomAnnotator() {
                 <div className="mb-4">
                     <div className="flex rounded-lg overflow-hidden border border-indigo-200 shadow-sm">
                         <button 
-                            className={`flex-1 py-3 px-4 font-medium transition-all duration-200 ${selectedKeypointLabel ? 'bg-indigo-600 text-white' : 'bg-white text-indigo-700 hover:bg-indigo-50'}`}
+                            className={`flex-1 py-3 px-4 font-medium transition-all duration-200 ${selectedMode === "keypoint" ? 'bg-indigo-600 text-white' : 'bg-white text-indigo-700'}`}
                             onClick={() => {
-                                setSelectedMode("keypoint")
+                                setSelectedMode(prev => prev === "keypoint" ? null : "keypoint");
                                 setSelectedKeypointLabel(null);
                                 setSelectedSkeletonLabel(null);
                                 setSelectedBboxLabel(null);
@@ -531,9 +531,9 @@ export default function DicomAnnotator() {
                             Keypoints
                         </button>
                         <button 
-                            className={`flex-1 py-3 px-4 font-medium transition-all duration-200 ${selectedSkeletonLabel ? 'bg-indigo-600 text-white' : 'bg-white text-indigo-700 hover:bg-indigo-50'}`}
+                            className={`flex-1 py-3 px-4 font-medium transition-all duration-200 ${selectedMode === "skeleton" ? 'bg-indigo-600 text-white' : 'bg-white text-indigo-700'}`}
                             onClick={() => {
-                                setSelectedMode("skeleton")
+                                setSelectedMode(prev => prev === "skeleton" ? null : "skeleton");
                                 setSelectedSkeletonLabel(null);
                                 setSelectedKeypointLabel(null);
                                 setSelectedBboxLabel(null);
@@ -542,9 +542,9 @@ export default function DicomAnnotator() {
                             Skeletons
                         </button>
                         <button 
-                            className={`flex-1 py-3 px-4 font-medium transition-all duration-200 ${selectedBboxLabel ? 'bg-indigo-600 text-white' : 'bg-white text-indigo-700 hover:bg-indigo-50'}`}
+                            className={`flex-1 py-3 px-4 font-medium transition-all duration-200 ${selectedMode === "bbox" ? 'bg-indigo-600 text-white' : 'bg-white text-indigo-700'}`}
                             onClick={() => {
-                                setSelectedMode("bbox")
+                                setSelectedMode(prev => prev === "bbox" ? null : "bbox");
                                 setSelectedBboxLabel(null);
                                 setSelectedKeypointLabel(null);
                                 setSelectedSkeletonLabel(null);

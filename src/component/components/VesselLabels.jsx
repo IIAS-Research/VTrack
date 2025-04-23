@@ -64,7 +64,7 @@ export function VesselLabels({ title, colors, selectedLabel, setSelectedLabel })
             {/* Bouton None */}
             <button
                 onClick={() => setSelectedLabel(null)}
-                className={`mt-2 px-2 py-1 rounded w-full ${selectedLabel === null ? 'bg-indigo-500 text-white' : 'bg-indigo-100 text-indigo-500'}`}
+                className={`mt-2 px-2 py-1 rounded w-full border text-sm font-medium shadow-sm ${selectedLabel === null ? 'bg-gray-300 text-gray-800 border-gray-400' : 'bg-white hover:bg-gray-100 border-gray-200'}`}
             >
                 No selection
             </button>

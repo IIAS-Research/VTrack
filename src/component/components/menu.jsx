@@ -8,9 +8,8 @@ const Menu = () => {
     return (
         <div className="fixed w-full flex justify-between items-center py-3 px-6 z-10 bg-white shadow-lg border-b border-gray-100">
             <div className="flex items-center">
-                <h1 className="text-2xl font-bold text-indigo-700">
-                    <span className="mr-2">🔬</span>
-                    Vessels Annotator
+                <h1 className="text-3xl font-bold text-indigo-700 tracking-wide">
+                    V-track
                 </h1>
             </div>
             
