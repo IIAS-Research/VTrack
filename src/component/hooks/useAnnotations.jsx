@@ -140,17 +140,22 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
         });
 
         // Dessin de la Bbox en cours de création
-        if (isDrawingBbox && bboxStart) {
+        if (isDrawingBbox && bboxStart && bboxStart.currentX !== undefined && bboxStart.currentY !== undefined) {
             const startX = bboxStart.x;
             const startY = bboxStart.y;
-            const width = bboxStart.width;
-            const height = bboxStart.height;
-            
+            const currentX = bboxStart.currentX;
+            const currentY = bboxStart.currentY;
+        
             ctx.strokeStyle = colors[selectedBboxLabel];
             ctx.lineWidth = 2;
-            ctx.strokeRect(startX, startY, width, height);
-        }
-    };
+            ctx.strokeRect(
+                startX,
+                startY,
+                currentX - startX,
+                currentY - startY
+            );
+        };
+    }
 
     const drawAll = (page = currentPage) => {
         clearCanvas();
