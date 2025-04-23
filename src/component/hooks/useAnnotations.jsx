@@ -545,15 +545,41 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
 
             const segments = [...pageData.segments];
             const history = [...pageData.history];
-            const removedSegment = segments.pop();
+            const removedSegment = segments.pop(); // Le segment à annuler
             history.push(removedSegment);
 
+            // Mise à jour des parents des points associés à ce segment
+            setKeypoints(prevKeypoints => {
+                const updatedKeypoints = { ...prevKeypoints };
+                const pageKeypoints = updatedKeypoints[currentPage];
+                if (!pageKeypoints) return prevKeypoints;
+            
+                // Trouver le point parent dans le segment supprimé (à partir des coordonnées)
+                const sourcePoint = pageKeypoints.points.find(p =>
+                    p.x === removedSegment.x1 &&
+                    p.y === removedSegment.y1 &&
+                    p.label === removedSegment.label1
+                );
+                
+                // Supprimer ce parent des points concernés
+                if (sourcePoint) {
+                    pageKeypoints.points = pageKeypoints.points.map(point => {
+                        if (point.parents) {
+                            point.parents = point.parents.filter(parentId => parentId !== sourcePoint.id);
+                        }
+                        return point;
+                    });
+                }
+            
+                updatedKeypoints[currentPage] = pageKeypoints;
+                return updatedKeypoints;
+            });
             newSkeletons[currentPage] = { segments, history };
             return newSkeletons;
         });
     };
 
-     const redoLastSkeleton = () => {
+    const redoLastSkeleton = () => {
         ensurePageData(currentPage);
          setSkeletons(prev => {
             const newSkeletons = { ...prev };
@@ -616,11 +642,47 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
 
     const resetSkeletons = () => {
         ensurePageData(currentPage);
+    
+        // On nettoie aussi les parents dans les keypoints associés aux segments
+        setKeypoints(prevKeypoints => {
+            const updatedKeypoints = { ...prevKeypoints };
+            const pageKeypoints = updatedKeypoints[currentPage];
+            const pageSkeletons = skeletons[currentPage];
+    
+            if (!pageKeypoints || !pageSkeletons) return prevKeypoints;
+    
+            const segments = pageSkeletons.segments;
+    
+            // Pour chaque segment, on identifie le point parent
+            const parentPoints = segments.map(seg => {
+                return pageKeypoints.points.find(p =>
+                    p.x === seg.x1 &&
+                    p.y === seg.y1 &&
+                    p.label === seg.label1
+                );
+            }).filter(p => p !== undefined); // enlever les nulls au cas où
+    
+            const parentIds = parentPoints.map(p => p.id);
+    
+            // Nettoyer tous les parents dans les points
+            pageKeypoints.points = pageKeypoints.points.map(point => {
+                if (point.parents) {
+                    point.parents = point.parents.filter(pid => !parentIds.includes(pid));
+                }
+                return point;
+            });
+    
+            updatedKeypoints[currentPage] = pageKeypoints;
+            return updatedKeypoints;
+        });
+    
+        // On efface les segments
         setSkeletons(prev => ({
             ...prev,
             [currentPage]: { segments: [], history: [] } // Clear segments and history
         }));
-        setStartPoint(null); // Reset skeleton drawing start point
+    
+        setStartPoint(null); // Reset point de départ éventuel
     };
 
      const resetBboxes = () => {
