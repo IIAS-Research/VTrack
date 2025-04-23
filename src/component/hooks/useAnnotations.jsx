@@ -581,20 +581,56 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
 
     const redoLastSkeleton = () => {
         ensurePageData(currentPage);
-         setSkeletons(prev => {
+        setSkeletons(prev => {
             const newSkeletons = { ...prev };
             const pageData = newSkeletons[currentPage];
             if (!pageData || pageData.history.length === 0) return prev; // No history to redo
-
+        
             const segments = [...pageData.segments];
             const history = [...pageData.history];
             const restoredSegment = history.pop();
             segments.push(restoredSegment);
-
+        
+            // Ajouter le parent au point destination
+            setKeypoints(prevKeypoints => {
+                const updatedKeypoints = { ...prevKeypoints };
+                const pageKeypoints = updatedKeypoints[currentPage];
+                if (!pageKeypoints) return prevKeypoints;
+            
+                const sourcePoint = pageKeypoints.points.find(p =>
+                    p.x === restoredSegment.x1 &&
+                    p.y === restoredSegment.y1 &&
+                    p.label === restoredSegment.label1
+                );
+            
+                const destPointId = pageKeypoints.points.find(p =>
+                    p.x === restoredSegment.x2 &&
+                    p.y === restoredSegment.y2 &&
+                    p.label === restoredSegment.label2
+                )?.id;
+            
+                // Ajoute le parent uniquement si les deux points sont trouvés
+                if (sourcePoint && destPointId !== undefined) {
+                    pageKeypoints.points = pageKeypoints.points.map(point => {
+                        if (point.id === destPointId) {
+                            const newParents = point.parents || [];
+                            if (!newParents.includes(sourcePoint.id)) {
+                                return { ...point, parents: [...newParents, sourcePoint.id] };
+                            }
+                        }
+                        return point;
+                    });
+                }
+            
+                updatedKeypoints[currentPage] = pageKeypoints;
+                return updatedKeypoints;
+            });
+        
             newSkeletons[currentPage] = { segments, history };
             return newSkeletons;
         });
     };
+
 
     const undoLastBbox = () => {
         ensurePageData(currentPage);
