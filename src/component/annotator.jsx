@@ -19,6 +19,7 @@ export default function DicomAnnotator() {
     
     // Initialize state
     const [currentPage, setCurrentPage] = useState(1);
+    const [injectionSite, setInjectionSite] = useState("none");
     const [selectedMode, setSelectedMode] = useState(null);
     const [selectedKeypointLabel, setSelectedKeypointLabel] = useState(null);
     const [selectedSkeletonLabel, setSelectedSkeletonLabel] = useState(null);
@@ -177,6 +178,7 @@ export default function DicomAnnotator() {
             filename: currentImage.name,
             width: canvas.width,
             height: canvas.height,
+            injection: injectionSite,
             vessel: keypoints.map(({ id, x, y, label, parents }) => ({
                 id,
                 x,
@@ -479,7 +481,41 @@ export default function DicomAnnotator() {
             {/* Right panel - Tools */}
             <div className="w-full lg:w-1/3 flex flex-col card bg-white p-6 rounded-xl h-fit">
                 <h3 className="text-center text-2xl font-bold mb-4 pb-2 text-indigo-700 border-b border-gray-100">Tools</h3>
-                
+
+                    {/*Classification de l'injection */}
+                    <div className="mb-4 rounded-lg border border-gray-200 shadow-sm p-3 bg-gradient-to-b from-white to-gray-50">
+                        <h4 className="text-lg font-semibold mb-3 text-indigo-700 border-b border-gray-100 pb-2">
+                            Contrast Injection Site
+                        </h4>
+                        <div className="grid grid-cols-2 gap-2">
+                            {["Right ICA", "Left ICA", "Right VA", "Left VA"].map(option => (
+                                <button
+                                    key={option}
+                                    onClick={() => setInjectionSite(option)}
+                                    className={`px-3 py-1 rounded-lg text-sm font-medium shadow-sm border ${
+                                      injectionSite === option 
+                                        ? 'bg-indigo-600 text-white border-indigo-600' 
+                                        : 'bg-white hover:bg-indigo-50 border-gray-200'
+                                    }`}
+                                >
+                                    {option}
+                                </button>
+                            ))}
+                            <button
+                                onClick={() => setInjectionSite("none")}
+                                className={`col-span-2 px-3 py-1 rounded-lg text-sm font-medium shadow-sm border ${
+                                  injectionSite === "none" 
+                                    ? 'bg-gray-300 text-gray-800 border-gray-400' 
+                                    : 'bg-white hover:bg-gray-100 border-gray-200'
+                                }`}
+                            >
+                                None / Reset
+                            </button>
+                        </div>
+                    </div>
+
+
+
                 {/* Mode Selector Tabs */}
                 <div className="mb-4">
                     <div className="flex rounded-lg overflow-hidden border border-indigo-200 shadow-sm">
