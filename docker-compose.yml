@@ -7,3 +7,4 @@ services:
       - ./dist:/home/vascuTrack/neurovascai/dist
     ports:
       - "8080:80"
+    restart: unless-stopped
