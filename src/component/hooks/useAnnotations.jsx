@@ -77,7 +77,7 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
             if (parents && parents.length > 0) {
                 parents.forEach(parentId => {
                         const parent = points.find(p => p.id === parentId);
-                        if (parent.label === label) {
+                        if (parent && parent.label === label) {
                             ctx.strokeStyle = colors[label];
                             ctx.lineWidth = 1;
                             // ctx.lineWidth = 2;
