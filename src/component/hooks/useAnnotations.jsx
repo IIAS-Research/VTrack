@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { labelColors } from "../constants/labelColors";
+import { vesselGroups } from "../constants/vesselGroups";
 
 export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedKeypointLabel, selectedSkeletonLabel, selectedBboxLabel }) {
     // State structure: { pageNum: { points: [], history: [] } } etc.
@@ -14,27 +15,9 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
     const [bboxStart, setBboxStart] = useState(null);
     const lastClickTimestampRef = useRef(0); // Ref to store the last click time
 
-    /*
-    const colors = {
-        ICA: "#FFADAD", MCA1: "#9BB1FF", MCA2: "#A0E7E5", MCA3: "#FFD6A5",
-        PCA1: "#D4A5A5", PCA2: "#C6A2FC", PCA3: "#FFB5E8", BA: "#A7E9AF",
-        ACA1: "#FBE7C6", ACA2: "#B5EAD7", ACA3: "#E2F0CB", SCA: "#AFCBFF",
-        PCA: "#E4C1F9", PCOM: "#C3B1E1", VA: "#FFCBCB",
-
-        "Bifurcation carotidienne": "#FFD700",     // or couleur or
-        "MCA1 -> MCA2": "#90EE90",                 // vert clair
-        "MCA2 -> MCA3": "#ADD8E6",                 // bleu clair
-        "ACA1 -> ACA2": "#FFB347",                 // orange clair
-        "ACA2 -> ACA3": "#FF6961",                 // rouge clair
-        "PCA1 -> PCA2": "#DDA0DD",                 // violet clair
-        "PCA2 -> PCA3": "#87CEEB",                 // bleu ciel
-        
-        // Couleur pour les Bbox d'occlusion
-        "Occlusion": "#FF0000",                     // rouge pour les occlusions
-        "Hide Region": "#000000"
-    };
-*/
     const colors = labelColors
+    const allBifurcationLabels = Object.values(vesselGroups).flatMap(group => group.bifurcations);
+  
     // Helper to initialize page data if it doesn't exist
     const ensurePageData = (page) => {
         setKeypoints(prev => ({
@@ -85,7 +68,12 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
             ctx.beginPath();
             ctx.arc(x, y, keypointSize, 0, 2 * Math.PI);
             ctx.fill();
-
+            // Ajouter un contour si c'est une bifurcation
+            if (allBifurcationLabels.includes(label)) {
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = "#D81B60"; // rose framboise bien visible
+                ctx.stroke();
+            }
             if (parents && parents.length > 0) {
                 parents.forEach(parentId => {
                         const parent = points.find(p => p.id === parentId);
