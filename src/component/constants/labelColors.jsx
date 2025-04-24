@@ -1,141 +1,140 @@
 export const labelColors = {
-    // 🧠 Crânial  
-    ICA: "#F8BBD0",    // rose pastel
-    MCA1: "#BBDEFB",   // bleu très clair
-    MCA2: "#B2EBF2",   // turquoise clair
-    MCA3: "#FFECB3",   // jaune pastel
-    ACA1: "#DCEDC8",   // vert doux
-    ACA2: "#C8E6C9",   // vert amande
-    ACA3: "#AED581",   // vert citronné
-    PCA1: "#E1BEE7",   // violet doux
-    PCA2: "#D1C4E9",   // mauve clair
-    PCA3: "#CE93D8",   // mauve pastel
-    BA: "#B3E5FC",     // bleu glacier
-    VA: "#FFE0B2",     // pêche
-    SCA: "#B2DFDB",    // menthe
-    PCOM: "#FFF9C4",   // jaune très pâle
-    PCA: "#E0F7FA",     // bleu ciel pastel
+  // 🧠 Crânial (pastels)
+  ICA: "hsl(340, 100%, 90%)",
+  MCA1: "hsl(210, 100%, 90%)",
+  MCA2: "hsl(190, 90%, 85%)",
+  MCA3: "hsl(45, 100%, 85%)",
+  ACA1: "hsl(90, 50%, 85%)",
+  ACA2: "hsl(120, 50%, 85%)",
+  ACA3: "hsl(100, 60%, 75%)",
+  PCA1: "hsl(290, 50%, 85%)",
+  PCA2: "hsl(260, 60%, 85%)",
+  PCA3: "hsl(280, 55%, 80%)",
+  BA: "hsl(200, 90%, 85%)",
+  VA: "hsl(30, 100%, 85%)",
+  SCA: "hsl(170, 60%, 80%)",
+  PCOM: "hsl(55, 100%, 85%)",
+  PCA: "hsl(190, 100%, 90%)",
 
-    "Bifurcation carotidienne": "#F48FB1",   // rose un peu plus vif
-    "MCA1 -> MCA2": "#90CAF9",               // bleu ciel médium
-    "MCA2 -> MCA3": "#80DEEA",               // turquoise moyen
-    "ACA1 -> ACA2": "#A5D6A7",               // vert tendre saturé
-    "ACA2 -> ACA3": "#81C784",               // vert légèrement boosté
-    "PCA1 -> PCA2": "#CE93D8",               // mauve moyen
-    "PCA2 -> PCA3": "#BA68C8",               // violet lavande plus profond
-  
-  
-    // 🍽️ Abdominaux
-    "Abdominal Aorta": "#E57373",
-    "Celiac Trunk": "#F06292",
-    "Left Gastric Artery": "#BA68C8",
-    "Splenic Artery": "#9575CD",
-    "Common Hepatic Artery": "#7986CB",
-    "Gastroduodenal Artery": "#64B5F6",
-    "Right Gastric Artery": "#4FC3F7",
-    "Left Hepatic Artery": "#4DB6AC",
-    "Right Hepatic Artery": "#81C784",
-    "Superior Mesenteric Artery (SMA)": "#AED581",
-    "Middle Colic Artery": "#DCE775",
-    "Right Colic Artery": "#FFF176",
-    "Ileocolic Artery": "#FFD54F",
-    "Intestinal Branches": "#FFB74D",
-    "Inferior Mesenteric Artery (IMA)": "#A1887F",
-    "Left Colic Artery": "#90A4AE",
-    "Sigmoid Arteries": "#B0BEC5",
-    "Superior Rectal Artery": "#F8BBD0",
-    "Renal Arteries (Right and Left)": "#CE93D8",
-    "Common Iliac Arteries (Right and Left)": "#B39DDB",
-    "Internal Iliac Artery": "#9FA8DA",
-    "External Iliac Artery": "#90CAF9",
-  
-    // ❤️ Coronaires
-    "Right Coronary Artery (RCA)": "#FFAB91",
-    "Conus Branch": "#FFCC80",
-    "Sinoatrial (SA) Nodal Branch": "#FFE082",
-    "Right Marginal Artery": "#FFF59D",
-    "Posterior Descending Artery (PDA)": "#E6EE9C",
-    "Left Main Coronary Artery (LMCA)": "#C5E1A5",
-    "Left Anterior Descending (LAD)": "#B2DFDB",
-    "Left Circumflex (LCx)": "#B3E5FC",
-    "Ramus Intermedius": "#B2EBF2",
-  
-    // 💪 Membres supérieurs
-    "Subclavian Artery": "#B3E5FC",
-    "Axillary Artery": "#81D4FA",
-    "Brachial Artery": "#4FC3F7",
-    "Radial Artery": "#29B6F6",
-    "Ulnar Artery": "#03A9F4",
-    "Palmar Arche": "#039BE5",
-    "Superficial Palmar Arch": "#0288D1",
-    "Deep Palmar Arch": "#0277BD",
-  
-    // 🦵 Membres inférieurs
-    "Common Iliac Artery": "#26A69A",
-    "External Iliac Artery": "#66BB6A",
-    "Internal Iliac Artery": "#9CCC65",
-    "Femoral Artery": "#D4E157",
-    "Deep Femoral Artery": "#FFEE58",
-    "Superficial Femoral Artery": "#FFCA28",
-    "Popliteal Artery": "#FFA726",
-    "Anterior Tibial Artery": "#FF7043",
-    "Posterior Tibial Artery": "#8D6E63",
-    "Fibular (Peroneal) Artery": "#BDBDBD",
-    "Medial Plantar Artery": "#78909C",
-    "Lateral Plantar Artery": "#A1887F",
-    "Dorsalis Pedis Artery": "#E0E0E0",
-    "Arcuate Artery": "#F48FB1",
-    "Deep Plantar Branch": "#CE93D8",
+  // 🔀 Bifurcations Crânial (plus saturées)
+  "Bifurcation carotidienne": "hsl(340, 80%, 70%)",
+  "MCA1 -> MCA2": "hsl(210, 90%, 70%)",
+  "MCA2 -> MCA3": "hsl(190, 90%, 65%)",
+  "ACA1 -> ACA2": "hsl(90, 60%, 65%)",
+  "ACA2 -> ACA3": "hsl(100, 65%, 60%)",
+  "PCA1 -> PCA2": "hsl(280, 70%, 65%)",
+  "PCA2 -> PCA3": "hsl(270, 70%, 60%)",
 
-    // Couleur pour les Bbox d'occlusion
-    "Occlusion": "#FF0000",                     // rouge pour les occlusions
-    "Hide Region": "#000000",
-  // 🔀 Bifurcations Abdominal
-  "Abdominal Aorta → Celiac Trunk": "hsl(136, 70%, 80%)",
-  "Abdominal Aorta → SMA": "hsl(226, 70%, 80%)",
-  "Abdominal Aorta → IMA": "hsl(353, 70%, 80%)",
-  "Celiac Trunk → Left Gastric Artery": "hsl(58, 70%, 80%)",
-  "Celiac Trunk → Common Hepatic Artery": "hsl(132, 70%, 80%)",
-  "Celiac Trunk → Splenic Artery": "hsl(116, 70%, 80%)",
-  "Common Hepatic Artery → Gastroduodenal Artery": "hsl(95, 70%, 80%)",
-  "Common Hepatic Artery → Right Gastric Artery": "hsl(210, 70%, 80%)",
-  "Common Hepatic Artery → Right Hepatic Artery": "hsl(111, 70%, 80%)",
-  "Common Hepatic Artery → Left Hepatic Artery": "hsl(40, 70%, 80%)",
-  "SMA → Middle Colic Artery": "hsl(192, 70%, 80%)",
-  "SMA → Right Colic Artery": "hsl(252, 70%, 80%)",
-  "SMA → Ileocolic Artery": "hsl(271, 70%, 80%)",
-  "SMA → Intestinal Branches": "hsl(72, 70%, 80%)",
-  "IMA → Left Colic Artery": "hsl(52, 70%, 80%)",
-  "IMA → Sigmoid Arteries": "hsl(120, 70%, 80%)",
-  "IMA → Superior Rectal Artery": "hsl(100, 70%, 80%)",
+  // 🍽️ Abdominaux (labels)
+  "Abdominal Aorta": "hsl(0, 60%, 75%)",
+  "Celiac Trunk": "hsl(330, 60%, 75%)",
+  "Left Gastric Artery": "hsl(280, 60%, 75%)",
+  "Splenic Artery": "hsl(250, 60%, 75%)",
+  "Common Hepatic Artery": "hsl(220, 60%, 75%)",
+  "Gastroduodenal Artery": "hsl(200, 60%, 75%)",
+  "Right Gastric Artery": "hsl(190, 60%, 75%)",
+  "Left Hepatic Artery": "hsl(160, 60%, 75%)",
+  "Right Hepatic Artery": "hsl(120, 60%, 75%)",
+  "Superior Mesenteric Artery (SMA)": "hsl(90, 60%, 75%)",
+  "Middle Colic Artery": "hsl(70, 60%, 75%)",
+  "Right Colic Artery": "hsl(50, 60%, 75%)",
+  "Ileocolic Artery": "hsl(40, 60%, 75%)",
+  "Intestinal Branches": "hsl(30, 60%, 75%)",
+  "Inferior Mesenteric Artery (IMA)": "hsl(25, 25%, 70%)",
+  "Left Colic Artery": "hsl(200, 20%, 70%)",
+  "Sigmoid Arteries": "hsl(210, 20%, 70%)",
+  "Superior Rectal Artery": "hsl(340, 100%, 90%)",
+  "Renal Arteries (Right and Left)": "hsl(280, 50%, 80%)",
+  "Common Iliac Arteries (Right and Left)": "hsl(270, 40%, 75%)",
+  "Internal Iliac Artery": "hsl(230, 40%, 75%)",
+  "External Iliac Artery": "hsl(210, 70%, 80%)",
 
-  // 🔀 Bifurcations Coronary
-  "RCA → Conus Branch": "hsl(42, 70%, 80%)",
-  "RCA → SA Nodal Branch": "hsl(115, 70%, 80%)",
-  "RCA → Right Marginal Artery": "hsl(167, 70%, 80%)",
-  "RCA → PDA": "hsl(68, 70%, 80%)",
-  "LMCA → LAD": "hsl(281, 70%, 80%)",
-  "LMCA → LCx": "hsl(129, 70%, 80%)",
-  "LMCA → Ramus Intermedius": "hsl(236, 70%, 80%)",
+  // 🔀 Bifurcations Abdominales
+  "Abdominal Aorta → Celiac Trunk": "hsl(340, 80%, 70%)",
+  "Abdominal Aorta → SMA": "hsl(210, 80%, 70%)",
+  "Abdominal Aorta → IMA": "hsl(20, 80%, 70%)",
+  "Celiac Trunk → Left Gastric Artery": "hsl(50, 80%, 70%)",
+  "Celiac Trunk → Common Hepatic Artery": "hsl(120, 80%, 70%)",
+  "Celiac Trunk → Splenic Artery": "hsl(180, 80%, 70%)",
+  "Common Hepatic Artery → Gastroduodenal Artery": "hsl(60, 80%, 70%)",
+  "Common Hepatic Artery → Right Gastric Artery": "hsl(200, 80%, 70%)",
+  "Common Hepatic Artery → Right Hepatic Artery": "hsl(140, 80%, 70%)",
+  "Common Hepatic Artery → Left Hepatic Artery": "hsl(40, 80%, 70%)",
+  "SMA → Middle Colic Artery": "hsl(190, 80%, 70%)",
+  "SMA → Right Colic Artery": "hsl(250, 80%, 70%)",
+  "SMA → Ileocolic Artery": "hsl(280, 80%, 70%)",
+  "SMA → Intestinal Branches": "hsl(100, 80%, 70%)",
+  "IMA → Left Colic Artery": "hsl(60, 80%, 70%)",
+  "IMA → Sigmoid Arteries": "hsl(120, 80%, 70%)",
+  "IMA → Superior Rectal Artery": "hsl(100, 80%, 70%)",
 
+  // ❤️ Coronaires
+  "Right Coronary Artery (RCA)": "hsl(10, 80%, 80%)",
+  "Conus Branch": "hsl(30, 80%, 80%)",
+  "Sinoatrial (SA) Nodal Branch": "hsl(60, 80%, 80%)",
+  "Right Marginal Artery": "hsl(90, 80%, 80%)",
+  "Posterior Descending Artery (PDA)": "hsl(120, 80%, 80%)",
+  "Left Main Coronary Artery (LMCA)": "hsl(140, 60%, 80%)",
+  "Left Anterior Descending (LAD)": "hsl(170, 60%, 80%)",
+  "Left Circumflex (LCx)": "hsl(200, 60%, 80%)",
+  "Ramus Intermedius": "hsl(230, 60%, 80%)",
+
+  // 🔀 Bifurcations Coronaires
+  "RCA → Conus Branch": "hsl(20, 90%, 65%)",
+  "RCA → SA Nodal Branch": "hsl(60, 90%, 65%)",
+  "RCA → Right Marginal Artery": "hsl(90, 90%, 65%)",
+  "RCA → PDA": "hsl(100, 90%, 65%)",
+  "LMCA → LAD": "hsl(280, 90%, 65%)",
+  "LMCA → LCx": "hsl(160, 90%, 65%)",
+  "LMCA → Ramus Intermedius": "hsl(230, 90%, 65%)",
+
+
+  // 💪 Membres supérieurs
+  "Subclavian Artery": "hsl(200, 60%, 85%)",
+  "Axillary Artery": "hsl(40, 60%, 85%)",
+  "Brachial Artery": "hsl(120, 50%, 80%)",
+  "Radial Artery": "hsl(280, 50%, 85%)",
+  "Ulnar Artery": "hsl(10, 50%, 85%)",
+  "Palmar Arche": "hsl(210, 50%, 85%)",
+  "Superficial Palmar Arch": "hsl(150, 50%, 85%)",
+  "Deep Palmar Arch": "hsl(330, 50%, 85%)",
+  
   // 🔀 Bifurcations Upper Limb
-  "Subclavian Artery → Axillary Artery": "hsl(25, 70%, 80%)",
-  "Axillary Artery → Brachial Artery": "hsl(299, 70%, 80%)",
-  "Brachial Artery → Radial Artery": "hsl(210, 70%, 80%)",
-  "Brachial Artery → Ulnar Artery": "hsl(347, 70%, 80%)",
-  "Ulnar Artery → Superficial Palmar Arch": "hsl(203, 70%, 80%)",
-  "Radial Artery → Deep Palmar Arch": "hsl(29, 70%, 80%)",
+  "Subclavian Artery → Axillary Artery": "hsl(200, 60%, 65%)",
+  "Axillary Artery → Brachial Artery": "hsl(40, 60%, 65%)",
+  "Brachial Artery → Radial Artery": "hsl(120, 60%, 65%)",
+  "Brachial Artery → Ulnar Artery": "hsl(280, 60%, 65%)",
+  "Ulnar Artery → Superficial Palmar Arch": "hsl(10, 60%, 65%)",
+  "Radial Artery → Deep Palmar Arch": "hsl(330, 60%, 65%)",
+
+  // 🦵 Membres inférieurs
+  "Common Iliac Artery": "hsl(260, 50%, 85%)",
+  // "External Iliac Artery": "hsl(20, 50%, 85%)",
+  // "Internal Iliac Artery": "hsl(100, 50%, 85%)",
+  "Femoral Artery": "hsl(0, 50%, 85%)",
+  "Deep Femoral Artery": "hsl(190, 50%, 85%)",
+  "Superficial Femoral Artery": "hsl(80, 50%, 85%)",
+  "Popliteal Artery": "hsl(300, 50%, 85%)",
+  "Anterior Tibial Artery": "hsl(40, 50%, 85%)",
+  "Posterior Tibial Artery": "hsl(170, 50%, 85%)",
+  "Fibular (Peroneal) Artery": "hsl(250, 50%, 85%)",
+  "Medial Plantar Artery": "hsl(0, 50%, 75%)",
+  "Lateral Plantar Artery": "hsl(300, 50%, 75%)",
+  "Dorsalis Pedis Artery": "hsl(60, 50%, 85%)",
+  "Arcuate Artery": "hsl(200, 50%, 85%)",
+  "Deep Plantar Branch": "hsl(140, 50%, 85%)",
 
   // 🔀 Bifurcations Lower Limb
-  "Common Iliac Artery → External Iliac Artery": "hsl(26, 70%, 80%)",
-  "Common Iliac Artery → Internal Iliac Artery": "hsl(245, 70%, 80%)",
-  "External Iliac Artery → Femoral Artery": "hsl(46, 70%, 80%)",
-  "Femoral Artery → Deep Femoral Artery": "hsl(125, 70%, 80%)",
-  "Femoral Artery → Superficial Femoral Artery": "hsl(161, 70%, 80%)",
-  "Popliteal Artery → Anterior Tibial Artery": "hsl(356, 70%, 80%)",
-  "Popliteal Artery → Posterior Tibial Artery": "hsl(167, 70%, 80%)",
-  "Posterior Tibial Artery → Fibular Artery": "hsl(25, 70%, 80%)",
+  "Common Iliac Artery → External Iliac Artery": "hsl(260, 60%, 65%)",
+  "Common Iliac Artery → Internal Iliac Artery": "hsl(20, 60%, 65%)",
+  "External Iliac Artery → Femoral Artery": "hsl(0, 60%, 65%)",
+  "Femoral Artery → Deep Femoral Artery": "hsl(190, 60%, 65%)",
+  "Femoral Artery → Superficial Femoral Artery": "hsl(80, 60%, 65%)",
+  "Popliteal Artery → Anterior Tibial Artery": "hsl(40, 60%, 65%)",
+  "Popliteal Artery → Posterior Tibial Artery": "hsl(170, 60%, 65%)",
+  "Posterior Tibial Artery → Fibular Artery": "hsl(250, 60%, 65%)",
 
+  // Couleur Occlusion / Masquage
   "Occlusion": "#FF0000",
-  "Hide Region": "#000000"
+  "Hide Region": "#000000",
 };
