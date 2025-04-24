@@ -562,7 +562,7 @@ export default function DicomAnnotator() {
                     {/* Conditional rendering based on selected mode */}
                     {selectedMode === "keypoint" && (
                         <div className="rounded-lg border border-gray-200 shadow-sm p-3 bg-gradient-to-b from-white to-gray-50">
-                            <h4 className="text-lg font-semibold mb-3 text-indigo-700 border-b border-gray-100 pb-2">Vaisseaux</h4>
+                            <h4 className="text-lg font-semibold mb-3 text-indigo-700 border-b border-gray-100 pb-2">Vessels</h4>
                             <VesselLabels 
                                 colors={colors}
                                 selectedLabel={selectedKeypointLabel}

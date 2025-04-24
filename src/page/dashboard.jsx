@@ -6,7 +6,7 @@ const Dashboard = () => {
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50">
             <Menu />
-            <div className="w-full py-6">
+            <div className="pt-18 w-full py-6">
                 <div className="w-full">
                     <Annotator />
                 </div>
