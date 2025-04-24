@@ -1,31 +1,79 @@
 import React from "react";
 import Menu from "./components/menu";
-import tuto_keypoint from "../assets/keypoint_tuto.gif";
+import tuto_keypoints_1 from "../assets/tuto_keypoints_1.gif";
+import tuto_keypoints_2 from "../assets/tuto_keypoints_2.gif";
 import tuto_skeleton from "../assets/tuto_skeleton.gif";
+import tuto_bbox from "../assets/tuto_bbox.gif";
 
 export default function Instructions() {
     return (
         <section className="flex flex-col">
-        <Menu />
-        <div className="p-4 mt-16 flex flex-col items-center">
-            <h1 className="text-3xl font-bold mb-4 text-indigo-700">Instructions</h1>
-            <article className="w-4/5 bg-white border border-slate-200 shadow-md rounded p-4">
-                <h2 className="text-xl font-bold mb-2 text-indigo-500">
-                    Creating keypoints
-                </h2>
-                <p>
-                    To create a keypoint, select your labeled keypoint and click on the image where you want to place the keypoint. A keypoint will be created at the clicked location.
-                </p>
-                <img src={tuto_keypoint} alt="Creating keypoints" className="my-4"/>
-                <h2 className="text-xl font-bold my-2 text-indigo-500">
-                    Create a line to connect keypoints
-                </h2>
-                <p>
-                    To create a line between two keypoints, select the first keypoint and click on the second keypoint. A line will be created between the two keypoints.
-                </p>
-                <img src={tuto_skeleton} alt="Creating a line" className="my-4"/>
-            </article>
-        </div>
+            <Menu />
+            <div className="p-4 mt-16 flex flex-col items-center">
+                <h1 className="text-3xl font-bold mb-4 text-indigo-700">Instructions</h1>
+                <article className="w-4/5 bg-white border border-slate-200 shadow-md rounded p-4">
+
+                    {/* Tuto Keypoint */}
+                    <h2 className="text-xl font-bold mb-2 text-indigo-500">
+                        Créer des keypoints
+                    </h2>
+                    <p>
+                        L’objectif de cet outil est d’annoter précisément les artères visibles sur les images médicales. Pour cela, il vous est demandé de placer des points d’intérêt (ou keypoints) le long des vaisseaux sanguins. Chaque keypoint doit être associé à un label anatomique (ex. : artère carotide gauche, artère vertébrale droite, etc.).
+                           
+                        <ul className="list-disc list-inside ml-4 mt-2">
+                        <li>
+                            Pour créer un keypoints, <strong>sélectionnez le label</strong> désiré puis cliquez sur l’image à l’endroit souhaité. Un point sera automatiquement créé.
+                        </li>
+                        <li>
+                            Les points appartenant à un même label sont <strong>automatiquement reliés entre eux</strong> par une ligne, ce qui permet de suivre le tracé du vaisseau de manière cohérente.
+                        </li>
+                    </ul>
+                    </p>
+                    <img src={tuto_keypoints_1} alt="Création de keypoints" className="my-4 mx-auto w-[1000px]" />
+
+                    <p>
+                        <ul className="list-disc list-inside ml-4 mt-2">
+                        <li>
+                            Pour annoter un embranchement entre deux vaisseaux, ajoutez un point au niveau de l’intersection avec le label <strong>bifurcation</strong>.
+                        </li>
+                        </ul>
+                    </p>
+                    <img src={tuto_keypoints_2} alt="Création de keypoints (suite)" className="my-4 mx-auto w-[1000px]" />
+
+                    {/* Tuto Skeleton */}
+                    <h2 className="text-xl font-bold my-2 text-indigo-500">
+                        Relier deux keypoints avec la fonctionnalité Skeleton
+                    </h2>
+                    <p>
+                        La fonctionnalité <strong>Skeleton</strong> permet de tracer une connexion entre deux <em>keypoints</em>. Elle est utilisée pour relier les <strong>points de bifurcation</strong> aux <strong>vaisseaux</strong> qui en partent ou y arrivent.
+                        <br />
+                        Pour garantir une annotation homogène et logique lors de l’export en JSON, il est essentiel de suivre l’ordre suivant :
+                    </p>
+                    <ul className="list-disc list-inside ml-4 mt-2">
+                        <li>
+                            <strong>1er clic :</strong> sur l’extrémité du vaisseau (artère)
+                        </li>
+                        <li>
+                            <strong>2e clic :</strong> sur le point de bifurcation correspondant
+                        </li>
+                    </ul>
+                    <p className="mt-2">
+                        Autrement dit, on va <strong>du vaisseau vers la bifurcation</strong>, comme montré dans la vidéo.
+                        <br />
+                        <span className="text-red-600 font-semibold">Ne pas inverser l’ordre !</span> Cela pourrait compromettre l’interprétation des connexions lors du traitement automatique des données.
+                    </p>
+                    <img src={tuto_skeleton} alt="Création de ligne entre points" className="my-4 mx-auto w-[1000px]" />
+
+                    {/* Tuto Bbox */}
+                    <h2 className="text-xl font-bold my-2 text-indigo-500">
+                        Créer une boîte englobante (bounding box)
+                    </h2>
+                    <p>
+                        Pour créer une boîte, cliquez pour définir le coin supérieur gauche, puis cliquez à nouveau pour définir le coin inférieur droit. La boîte s’ajustera automatiquement.
+                    </p>
+                    <img src={tuto_bbox} alt="Création de bounding box" className="my-4 mx-auto w-[1000px]" />
+                </article>
+            </div>
         </section>
     );
 }
