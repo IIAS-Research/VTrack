@@ -79,7 +79,8 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
                         const parent = points.find(p => p.id === parentId);
                         if (parent.label === label) {
                             ctx.strokeStyle = colors[label];
-                            ctx.lineWidth = 2;
+                            ctx.lineWidth = 1;
+                            // ctx.lineWidth = 2;
                             ctx.beginPath();
                             ctx.moveTo(parent.x, parent.y);
                             ctx.lineTo(x, y);
@@ -98,6 +99,7 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
         const segments = skeletons[page]?.segments || []; // Access segments array
         segments.forEach(({ x1, y1, label1, x2, y2, label2 }) => {
             ctx.strokeStyle = colors[label1];
+            ctx.lineWidth = 1;
             ctx.beginPath();
             ctx.moveTo(x1, y1);
             ctx.lineTo(x2, y2);
@@ -121,7 +123,7 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
             } else {
                 // Dessin normal
                 ctx.strokeStyle = colors[label];
-                ctx.lineWidth = 2;
+                ctx.lineWidth = 1;
                 ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
         
                 ctx.fillStyle = colors[label];
@@ -138,7 +140,7 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
             const currentY = bboxStart.currentY;
         
             ctx.strokeStyle = colors[selectedBboxLabel];
-            ctx.lineWidth = 2;
+            ctx.lineWidth = 1;
             ctx.strokeRect(
                 startX,
                 startY,
@@ -394,7 +396,7 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
         // rect will be drawn over it immediately on mouse move.
         const ctx = canvas.getContext("2d");
         ctx.strokeStyle = colors[selectedBboxLabel];
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 1;
         // Use currentX/currentY from state if available, otherwise use event's x/y
         const currentX = bboxStart?.currentX ?? x;
         const currentY = bboxStart?.currentY ?? y;
