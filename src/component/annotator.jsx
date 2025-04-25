@@ -187,7 +187,8 @@ export default function DicomAnnotator() {
                 x,
                 y,
                 label,
-                parents: parents || []
+                // parents: parents || []
+                parents: (parents || []).map(p => typeof p === 'object' ? p.id : p)
             })),
             skeleton: skeletons || [],
             bbox: bboxes || []
@@ -219,7 +220,11 @@ export default function DicomAnnotator() {
                     });
                 
                     data.vessel.forEach(p => {
-                        idToPointMap[p.id].parents = (p.parents || []).map(pid => idToPointMap[pid]);
+                        // idToPointMap[p.id].parents = (p.parents || []).map(pid => idToPointMap[pid]);
+                        // idToPointMap[p.id].parents = [...(p.parents || [])];
+                        idToPointMap[p.id].parents = (p.parents || []).map(pid =>
+                            typeof pid === 'object' ? pid.id : pid
+                        );
                     });
 
                     const finalKeypoints = Object.values(idToPointMap);
