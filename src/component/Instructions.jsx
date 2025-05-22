@@ -4,6 +4,7 @@ import tuto_keypoints_1 from "../assets/tuto_keypoints_1.gif";
 import tuto_keypoints_2 from "../assets/tuto_keypoints_2.gif";
 import tuto_skeleton from "../assets/tuto_skeleton.gif";
 import tuto_bbox from "../assets/tuto_bbox.gif";
+import tuto_move from "../assets/move.gif";
 
 export default function Instructions() {
     return (
@@ -72,6 +73,17 @@ export default function Instructions() {
                         Pour créer une boîte, cliquez pour définir le coin supérieur gauche, puis cliquez à nouveau pour définir le coin inférieur droit. La boîte s’ajustera automatiquement.
                     </p>
                     <img src={tuto_bbox} alt="Création de bounding box" className="my-4 mx-auto w-[1000px]" />
+
+                    {/* Tuto Move Keypoint */}
+                    <h2 className="text-2xl font-bold my-2 text-indigo-500">
+                        Déplacer un keypoint
+                    </h2>
+                    <p className="text-lg">
+                        Pour déplacer un keypoint cliquuer sur le bouton <strong>Move Keypoint</strong>. Ensuite cliquer sur le keypoint que vous souhaitez déplacer. Vous pouvez ensuite le déplacer à l’endroit souhaité.
+                        <br />
+                        Pour ne plus déplacer de keypoint, cliquer sur le bouton <strong>Cancel Move</strong>.
+                    </p>
+                    <img src={tuto_move} alt="Déplacement de keypoint" className="my-4 mx-auto w-[1000px]" />
                 </article>
             </div>
         </section>
