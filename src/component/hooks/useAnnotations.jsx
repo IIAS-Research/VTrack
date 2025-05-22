@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { labelColors } from "../constants/labelColors";
 import { vesselGroups } from "../constants/vesselGroups";
 
-export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedKeypointLabel, selectedSkeletonLabel, selectedBboxLabel }) {
+export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedKeypointLabel, selectedSkeletonLabel, selectedBboxLabel, isMoveMode }) {
     // State structure: { pageNum: { points: [], history: [] } } etc.
     const keypointIdRef = useRef(0);
 
@@ -14,6 +14,7 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
     const [isDrawingBbox, setIsDrawingBbox] = useState(false);
     const [bboxStart, setBboxStart] = useState(null);
     const lastClickTimestampRef = useRef(0); // Ref to store the last click time
+    const [selectedKeypoint, setSelectedKeypoint] = useState(null); // State for move mode
 
     const colors = labelColors
     const allBifurcationLabels = Object.values(vesselGroups).flatMap(group => group.bifurcations);
@@ -59,15 +60,24 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
         const canvas = canvasRef.current;
         if (!canvas) return;
         const ctx = canvas.getContext("2d");
-        // Clear canvas is now handled by drawAll
-        // ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        const points = keypoints[page]?.points || []; // Access points array
-        points.forEach(({ x, y, label, parents }) => {
+        const points = keypoints[page]?.points || [];
+        points.forEach(({ x, y, label, parents, id }) => {
             ctx.fillStyle = colors[label];
+            
+            // Dessiner un point plus grand et avec un contour si c'est le point sélectionné
+            if (selectedKeypoint && selectedKeypoint.id === id) {
+                ctx.beginPath();
+                ctx.arc(x, y, keypointSize + 2, 0, 2 * Math.PI);
+                ctx.strokeStyle = "#FF3366";
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+            
             ctx.beginPath();
             ctx.arc(x, y, keypointSize, 0, 2 * Math.PI);
             ctx.fill();
+
             // Ajouter un contour si c'est une bifurcation
             if (allBifurcationLabels.includes(label)) {
                 ctx.lineWidth = 2;
@@ -177,10 +187,26 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
         }
     };
 
+    const findNearestKeypoint = (x, y, maxDistance = 10) => {
+        const points = keypoints[currentPage]?.points || [];
+        let nearest = null;
+        let minDist = maxDistance;
+
+        points.forEach(point => {
+            const dist = Math.hypot(point.x - x, point.y - y);
+            if (dist < minDist) {
+                minDist = dist;
+                nearest = point;
+            }
+        });
+
+        return nearest;
+    };
+
     const handleCanvasClick = (event) => {
 
         // Si aucun mode n'est sélectionné, on ne fait rien
-        if (!selectedKeypointLabel && !selectedSkeletonLabel && !selectedBboxLabel) return;
+        if (!selectedKeypointLabel && !selectedSkeletonLabel && !selectedBboxLabel && !isMoveMode) return;
 
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -192,6 +218,37 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
 
         const x = (event.clientX - rect.left) * scaleX;
         const y = (event.clientY - rect.top) * scaleY;
+
+        // Mode déplacement de keypoint
+        if (isMoveMode) {
+            if (!selectedKeypoint) {
+                // Premier clic : sélectionner le keypoint
+                const nearestPoint = findNearestKeypoint(x, y);
+                if (nearestPoint) {
+                    setSelectedKeypoint(nearestPoint);
+                }
+            } else {
+                // Deuxième clic : déplacer le keypoint
+                setKeypoints(prev => {
+                    const pageData = prev[currentPage] || { points: [], history: [] };
+                    const updatedPoints = pageData.points.map(point => {
+                        if (point.id === selectedKeypoint.id) {
+                            return { ...point, x, y };
+                        }
+                        return point;
+                    });
+                    return {
+                        ...prev,
+                        [currentPage]: {
+                            points: updatedPoints,
+                            history: []
+                        }
+                    };
+                });
+                setSelectedKeypoint(null);
+            }
+            return;
+        }
 
         // Gestion des keypoints (vaisseaux)
         if (selectedKeypointLabel) {

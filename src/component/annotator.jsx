@@ -21,6 +21,7 @@ export default function DicomAnnotator() {
     const [currentPage, setCurrentPage] = useState(1);
     const [injectionSite, setInjectionSite] = useState("none");
     const [selectedMode, setSelectedMode] = useState(null);
+    const [isMoveMode, setIsMoveMode] = useState(false);
     const [selectedKeypointLabel, setSelectedKeypointLabel] = useState(null);
     const [selectedSkeletonLabel, setSelectedSkeletonLabel] = useState(null);
     const [selectedBboxLabel, setSelectedBboxLabel] = useState(null);
@@ -64,14 +65,14 @@ export default function DicomAnnotator() {
         colors,
         setKeypoints,
         setSkeletons,
-        setBboxes
-    } = useAnnotations({ 
+        setBboxes    } = useAnnotations({ 
         canvasRef, 
         currentPage, 
         keypointSize, 
         selectedKeypointLabel, 
         selectedSkeletonLabel,
-        selectedBboxLabel
+        selectedBboxLabel,
+        isMoveMode
     });
 
     // Zoom functionality
@@ -393,6 +394,23 @@ export default function DicomAnnotator() {
                                 Larger
                             </button>
                         </div>
+                    </div>
+                </div>
+
+                {/* Move Keypoint Control */}
+                <div className="w-full rounded-xl overflow-hidden shadow-sm border border-indigo-100 bg-gradient-to-b from-white to-indigo-50 mb-4">
+                    <h4 className="text-lg font-bold py-2 text-center text-indigo-700 border-b border-indigo-100 bg-white">🔄 Move Keypoint</h4>
+                    <div className="p-4">
+                        <button
+                            onClick={() => setIsMoveMode(!isMoveMode)}
+                            className={`w-full py-2 px-4 rounded-lg shadow-sm transition-all duration-200 ${
+                                isMoveMode
+                                    ? 'bg-amber-500 text-white hover:bg-amber-600'
+                                    : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
+                            }`}
+                        >
+                            {isMoveMode ? 'Cancel Move' : 'Move Keypoint'}
+                        </button>
                     </div>
                 </div>
 
