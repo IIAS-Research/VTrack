@@ -6,7 +6,6 @@ import { SkeletonLabels } from "./components/SkeletonLabels";
 import { BboxLabels } from "./components/BboxLabels";
 import { ImageNavigator } from "./components/ImageNavigator";
 import { ZoomControls } from "./components/ZoomControls";
-import { vesselGroups } from './constants/vesselGroups';
 import { useAnnotations } from "./hooks/useAnnotations";
 import { Undo2, Redo2 } from "lucide-react";
 
@@ -455,7 +454,7 @@ export default function DicomAnnotator() {
                     <div className="relative mt-4 rounded-lg shadow-lg border border-gray-100 max-h-3/4 max-w-full">
                         {/* Zoom Instructions */}
                         {showInstructions && (
-                            <div className="absolute top-12 left-1/2 transform -translate-x-1/2 bg-indigo-800 bg-opacity-90 text-white p-3 rounded-lg z-20 shadow-lg">
+                            <div className="absolute translate-y-[150px] left-1/2 transform -translate-x-1/2 bg-indigo-800 bg-opacity-90 text-white p-6 rounded-lg z-20 shadow-lg">
                                 <p className="flex items-center gap-2 font-medium">
                                     <span className="text-lg">⚙️</span> Molette = Zoom | Clic droit = Déplacement
                                 </p>
