@@ -282,7 +282,7 @@ export default function DicomAnnotator() {
     }, [keypointSize]);
 
     return (
-        <div className="px-6 mt-16 flex flex-col lg:flex-row gap-6">
+        <div className="px-6 mt-10 flex flex-col lg:flex-row gap-6">
             {/* Left panel - Action buttons */}
             <div className="w-full lg:w-1/4 flex flex-col card bg-white p-4 rounded-xl h-fit">
                 <h3 className="text-center text-xl font-bold mb-3 pb-2 text-indigo-700 border-b border-gray-100">Actions</h3>
@@ -423,14 +423,14 @@ export default function DicomAnnotator() {
                 </div>
             </div>
 
-            {/* Middle panel - Image viewer */}
+            {/* Middle panel - Image viewer */}            
             <div 
-                className={`w-full lg:w-1/2 flex flex-col transition-all duration-200 ${isDraggingOver ? 'bg-indigo-100 scale-105 shadow-xl' : ''}`}
+                className={`flex-shrink-0 flex flex-col transition-all duration-200 max-h-[700px] max-w-1/2 ${isDraggingOver ? 'bg-indigo-100 scale-105 shadow-xl' : ''}`}
                 onDragOver={handleDragOver} 
                 onDragLeave={handleDragLeave} 
                 onDrop={handleDrop}
             >
-                <div className="w-full flex flex-col items-center card bg-white p-6 rounded-xl">
+                <div className="flex flex-col items-center card bg-white max-h-[900px] p-6 rounded-xl">
                     {/* Image Navigator */}
                     <ImageNavigator 
                         currentPage={currentPage}
@@ -451,8 +451,8 @@ export default function DicomAnnotator() {
                         <div className="mt-4 text-center text-indigo-600 font-semibold bg-indigo-50 p-4 rounded-lg w-full border-2 border-dashed border-indigo-400">
                             <p className="text-lg">Drop files here to upload</p>
                         </div>
-                    )}
-                    <div className="relative w-full mt-4 overflow-hidden rounded-lg shadow-lg border border-gray-100">
+                    )}                    
+                    <div className="relative mt-4 rounded-lg shadow-lg border border-gray-100 max-h-3/4 max-w-full">
                         {/* Zoom Instructions */}
                         {showInstructions && (
                             <div className="absolute top-12 left-1/2 transform -translate-x-1/2 bg-indigo-800 bg-opacity-90 text-white p-3 rounded-lg z-20 shadow-lg">
@@ -467,15 +467,26 @@ export default function DicomAnnotator() {
                                 </button>
                             </div>
                         )}
-                        
-                        <div ref={viewerRef} className="w-full h-full" style={{ transformOrigin: '0 0' }}></div>
-                        <canvas
-                            ref={canvasRef}
-                            className={`absolute top-0 left-0 pointer-events-auto ${panEnabled ? 'cursor-grab' : 'cursor-crosshair'}`}
-                            onClick={handleCanvasClick}
-                            onMouseMove={handleMouseMove}
-                            style={{ transformOrigin: '0 0' }}
-                        />
+                        <div className="h-full overflow-auto relative">
+                            <div>
+                                <div ref={viewerRef} style={{ 
+                                    transformOrigin: '0 0',
+                                    display: 'block'
+                                }}></div>
+                                <canvas
+                                    ref={canvasRef}
+                                    className={`pointer-events-auto ${panEnabled ? 'cursor-grab' : 'cursor-crosshair'}`}
+                                    onClick={handleCanvasClick}
+                                    onMouseMove={handleMouseMove}
+                                    style={{ 
+                                        position: 'absolute',
+                                        top: 0,
+                                        left: 0,
+                                        transformOrigin: '0 0'
+                                    }}
+                                />
+                            </div>
+                        </div>
                     </div>
                     {!isDraggingOver && (
                         <div className="mt-4 text-center text-gray-500 bg-gray-50 p-4 rounded-lg w-full">
