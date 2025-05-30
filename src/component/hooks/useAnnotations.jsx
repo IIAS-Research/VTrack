@@ -607,24 +607,32 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
                 const updatedKeypoints = { ...prevKeypoints };
                 const pageKeypoints = updatedKeypoints[currentPage];
                 if (!pageKeypoints) return prevKeypoints;
-            
-                // Trouver le point parent dans le segment supprimé (à partir des coordonnées)
+
+                // Trouver le point destination du segment supprimé (x2, y2, label2)
+                const destPoint = pageKeypoints.points.find(p =>
+                    p.x === removedSegment.x2 &&
+                    p.y === removedSegment.y2 &&
+                    p.label === removedSegment.label2
+                );
                 const sourcePoint = pageKeypoints.points.find(p =>
                     p.x === removedSegment.x1 &&
                     p.y === removedSegment.y1 &&
                     p.label === removedSegment.label1
                 );
-                
-                // Supprimer ce parent des points concernés
-                if (sourcePoint) {
+
+                // Supprimer UNIQUEMENT le parent correspondant à ce segment
+                if (destPoint && sourcePoint) {
                     pageKeypoints.points = pageKeypoints.points.map(point => {
-                        if (point.parents) {
-                            point.parents = point.parents.filter(parentId => parentId !== sourcePoint.id);
+                        if (point.id === destPoint.id) {
+                            return {
+                                ...point,
+                                parents: (point.parents || []).filter(parentId => parentId !== sourcePoint.id)
+                            };
                         }
                         return point;
                     });
                 }
-            
+
                 updatedKeypoints[currentPage] = pageKeypoints;
                 return updatedKeypoints;
             });
