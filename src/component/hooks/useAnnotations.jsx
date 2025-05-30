@@ -2,9 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { labelColors } from "../constants/labelColors";
 import { vesselGroups } from "../constants/vesselGroups";
 
-export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedKeypointLabel, selectedSkeletonLabel, selectedBboxLabel, isMoveMode }) {
+export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedKeypointLabel, selectedSkeletonLabel, selectedBboxLabel, isMoveMode, keypointIdRef }) {
     // State structure: { pageNum: { points: [], history: [] } } etc.
-    const keypointIdRef = useRef(0);
 
     const [keypoints, setKeypoints] = useState({});
     const [skeletons, setSkeletons] = useState({});

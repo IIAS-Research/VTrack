@@ -69,14 +69,16 @@ export default function DicomAnnotator() {
         colors,
         setKeypoints,
         setSkeletons,
-        setBboxes    } = useAnnotations({ 
+        setBboxes
+    } = useAnnotations({ 
         canvasRef, 
         currentPage, 
         keypointSize, 
         selectedKeypointLabel, 
         selectedSkeletonLabel,
         selectedBboxLabel,
-        isMoveMode
+        isMoveMode,
+        keypointIdRef // <-- passage de la ref
     });
 
     // Zoom functionality
