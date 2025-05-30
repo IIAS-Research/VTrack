@@ -16,8 +16,7 @@ export default function DicomAnnotator() {
     const canvasRef = useRef(null);
     const prevImagesLengthRef = useRef(0); // Add this ref to track previous image count
     const keypointIdRef = useRef(0);
-    
-    // Initialize state
+      // Initialize state
     const [currentPage, setCurrentPage] = useState(1);
     const [injectionSite, setInjectionSite] = useState("none");
     const [selectedMode, setSelectedMode] = useState(null);
@@ -28,6 +27,11 @@ export default function DicomAnnotator() {
     const [keypointSize, setKeypointSize] = useState(5); // Default keypoint size
     const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
     const [selectedVesselGroup, setSelectedVesselGroup] = useState("Cranial");
+    
+    // Confirmation modal states
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [confirmAction, setConfirmAction] = useState(null);
+    const [confirmType, setConfirmType] = useState("");
 
     
     // Custom hooks for functionality
@@ -265,12 +269,32 @@ export default function DicomAnnotator() {
     const handleSkeletonLabelSelect = (label) => {
         setSelectedSkeletonLabel(label);
         setSelectedKeypointLabel(null); // Deselect keypoints when a skeleton is selected
-    };
-
-    // Handle keypoint label selection
+    };    // Handle keypoint label selection
     const handleKeypointLabelSelect = (label) => {
         setSelectedKeypointLabel(label);
         setSelectedSkeletonLabel(null); // Deselect skeletons when a keypoint is selected
+    };
+
+    // Confirmation modal functions
+    const showConfirmation = (type, action) => {
+        setConfirmType(type);
+        setConfirmAction(() => action);
+        setShowConfirmModal(true);
+    };
+
+    const handleConfirm = () => {
+        if (confirmAction) {
+            confirmAction();
+        }
+        setShowConfirmModal(false);
+        setConfirmAction(null);
+        setConfirmType("");
+    };
+
+    const handleCancel = () => {
+        setShowConfirmModal(false);
+        setConfirmAction(null);
+        setConfirmType("");
     };
 
     useEffect(() => {
@@ -288,22 +312,21 @@ export default function DicomAnnotator() {
                 <h3 className="text-center text-xl font-bold mb-3 pb-2 text-indigo-700 border-b border-gray-100">Actions</h3>
                 <div className="w-full rounded-xl overflow-hidden shadow-sm border border-indigo-100 bg-gradient-to-b from-white to-indigo-50 mb-3">
                     <h4 className="text-lg font-bold py-2 text-center text-indigo-700 border-b border-indigo-100 bg-white"><span className="text-white">🗑️</span> Reset</h4>
-                    <div className="grid grid-cols-3 gap-2 p-3">
-                        <button
+                    <div className="grid grid-cols-3 gap-2 p-3">                        <button
                             className="bg-red-500 text-white px-2 py-2 rounded-lg hover:bg-red-600 shadow-sm flex items-center justify-center gap-1"
-                            onClick={resetKeypoints}
+                            onClick={() => showConfirmation("keypoints", resetKeypoints)}
                         >
                             Keypoints
                         </button>
                         <button
                             className="bg-red-500 text-white px-2 py-2 rounded-lg hover:bg-red-600 shadow-sm flex items-center justify-center gap-1"
-                            onClick={resetSkeletons}
+                            onClick={() => showConfirmation("skeletons", resetSkeletons)}
                         >
                             Skeletons
                         </button>
                         <button
                             className="bg-red-500 text-white px-2 py-2 rounded-lg hover:bg-red-600 shadow-sm flex items-center justify-center gap-1"
-                            onClick={resetBboxes}
+                            onClick={() => showConfirmation("bounding boxes", resetBboxes)}
                         >
                             Bouning Boxes
                         </button>
@@ -472,9 +495,9 @@ export default function DicomAnnotator() {
                     <div className="relative mt-4 rounded-lg shadow-lg border border-gray-100 max-h-3/4 max-w-full">
                         {/* Zoom Instructions */}
                         {showInstructions && (
-                            <div className="absolute translate-y-[150px] left-1/2 transform -translate-x-1/2 bg-indigo-800 bg-opacity-90 text-white p-6 rounded-lg z-20 shadow-lg">
+                            <div className="absolute translate-y-[150px] left-1/2 transform -translate-x-1/2 bg-indigo-800 bg-opacity-90 text-white p-6 rounded-lg z-20 shadow-lg w-100">
                                 <p className="flex items-center gap-2 font-medium">
-                                    <span className="text-lg">⚙️</span> Molette = Zoom | Clic droit = Déplacement
+                                    <span className="text-lg">⚙️</span> Scroll wheel = Zoom | Right click = Move
                                 </p>
                                 <button 
                                     className="absolute top-1 right-1 text-xs bg-indigo-700 hover:bg-indigo-600 rounded-full w-5 h-5 flex items-center justify-center"
@@ -626,9 +649,37 @@ export default function DicomAnnotator() {
                                 setSelectedLabel={handleBboxLabelSelect}
                             />
                         </div>
-                    )}
-                </div>
+                    )}                </div>
             </div>
+            
+            {/* Confirmation Modal */}
+            {showConfirmModal && (
+                <div className="fixed inset-0 bg-black/40 bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 max-w-md mx-4 shadow-xl">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                            Confirm reset
+                        </h3>
+                        <p className="text-gray-600 mb-6">
+                            Are you sure you want to reset all <strong>{confirmType}</strong>? 
+                            This action cannot be undone.
+                        </p>
+                        <div className="flex gap-3 justify-end">
+                            <button
+                                onClick={handleCancel}
+                                className="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleConfirm}
+                                className="px-4 py-2 text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors"
+                            >
+                                Confirm
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
