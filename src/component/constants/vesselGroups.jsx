@@ -14,9 +14,15 @@ export const vesselGroups = {
       "ACA2 -> ACA3",
       "PCA1 -> PCA2",
       "PCA2 -> PCA3",
-      "M1 -> M1",
-      "M2 -> M2",
-      "M3 -> M3",
+      "MCA1 -> MCA1",
+      "MCA2 -> MCA2",
+      "MCA3 -> MCA3",
+      "PCA1 -> PCA1",
+      "PCA2 -> PCA2",
+      "PCA3 -> PCA3",
+      "ACA1 -> ACA1",
+      "ACA2 -> ACA2",
+      "ACA3 -> ACA3"
     ]
   },
   Abdominal: {
