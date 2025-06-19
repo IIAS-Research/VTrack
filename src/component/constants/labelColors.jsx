@@ -24,6 +24,9 @@ export const labelColors = {
   "ACA2 -> ACA3": "hsl(100, 65%, 60%)",
   "PCA1 -> PCA2": "hsl(280, 70%, 65%)",
   "PCA2 -> PCA3": "hsl(270, 70%, 60%)",
+  "M1 -> M1": "hsl(200, 80%, 70%)",
+  "M2 -> M2": "hsl(30, 80%, 70%)",
+  "M3 -> M3": "hsl(60, 80%, 70%)",
 
   // 🍽️ Abdominaux (labels)
   "Abdominal Aorta": "hsl(0, 60%, 75%)",
