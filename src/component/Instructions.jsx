@@ -93,7 +93,15 @@ export default function Instructions() {
                                 <br />
                                 Pour ne plus déplacer de keypoint, cliquer sur le bouton <strong>Cancel Move</strong>.
                             </p>
-                            <img src={tuto_move} alt="Déplacement de keypoint" className="my-4 mx-auto w-[1000px]" />
+                            <img src={tuto_move} alt="Déplacement de keypoint" className="my-4 mx-auto w-[1000px]" />                            <h2 className="text-2xl font-bold my-2 text-indigo-500">
+                                Créer une nouvelle branche d'un vaisseau sanguin
+                            </h2>
+                            <p className="text-lg">
+                                Pour créer une nouvelle branche d'un vaisseau sanguin, il suffit de cliquer sur la touche <strong>Suppr</strong> du clavier. La nouvelle branche sera créée et il vous suffira de placer les keypoints comme d'habitude.
+                            </p>
+                            <p className="text-lg">
+                                <strong>Important :</strong> Si vous avez fait une erreur dans la branche précédente, pour revenir dessus il suffit de cliquer sur Undo jusqu'à revenir sur l'erreur, sinon vous pouvez toujours déplacer les keypoints pour corriger.
+                            </p>
                         </>
                     )}
                     {lang === "en" && (
@@ -160,6 +168,16 @@ export default function Instructions() {
                                 To stop moving keypoints, click the <strong>Cancel Move</strong> button.
                             </p>
                             <img src={tuto_move} alt="Move keypoint" className="my-4 mx-auto w-[1000px]" />
+                            
+                            <h2 className="text-2xl font-bold my-2 text-indigo-500">
+                                Create a new branch of a blood vessel
+                            </h2>
+                            <p className="text-lg">
+                                To create a new branch of a blood vessel, simply press the <strong>Delete</strong> key on your keyboard. The new branch will be created and you can place keypoints as usual.
+                            </p>
+                            <p className="text-lg">
+                                <strong>Important:</strong> If you made a mistake in the previous branch, you can go back by clicking Undo until you reach the error, or you can always move keypoints to make corrections.
+                            </p>
                         </>
                     )}
                 </article>
