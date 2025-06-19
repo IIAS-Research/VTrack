@@ -14,6 +14,28 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
     const [bboxStart, setBboxStart] = useState(null);
     const lastClickTimestampRef = useRef(0); // Ref to store the last click time
     const [selectedKeypoint, setSelectedKeypoint] = useState(null); // State for move mode
+    
+    // État pour activer/désactiver les connexions entre keypoints
+    const [skipParentConnection, setSkipParentConnection] = useState(false);
+
+    // Écouteur d'événements pour la touche Suppr
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            // Détecte la touche Suppr (Delete) ou Backspace pour les claviers Mac
+            if (event.key === 'Delete' || event.key === 'Backspace') {
+                // Active le mode "sans parent" pour le prochain keypoint
+                setSkipParentConnection(true);
+                // Réinitialise également le point de départ des skeletons
+                setStartPoint(null);
+                console.log("Mode sans parent activé (touche Suppr pressée) - prochain point sera indépendant");
+            }
+        };
+        
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, []);
 
     const colors = labelColors
     const allBifurcationLabels = Object.values(vesselGroups).flatMap(group => group.bifurcations);
@@ -258,14 +280,20 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
             // --- Refinement: Calculate parent and new point *before* the updater --- 
             const currentPoints = keypoints[currentPage]?.points || [];
             const lastPointOfLabel = currentPoints.filter(k => k.label === selectedKeypointLabel).slice(-1)[0];
-            
-            const newPoint = {
+              const newPoint = {
                 id: keypointIdRef.current++,  // auto-incrément
                 x,
                 y,
                 label: selectedKeypointLabel,
-                parents: lastPointOfLabel ? [lastPointOfLabel.id] : []
+                // Si mode "sans parent" est activé OU pas de point précédent, pas de parent
+                parents: (skipParentConnection || !lastPointOfLabel) ? [] : [lastPointOfLabel.id]
               };
+
+            // Réinitialiser le mode "sans parent" après avoir créé un point sans parent
+            if (skipParentConnection) {
+                console.log("Point créé sans parent - Mode normal réactivé");
+                setSkipParentConnection(false);
+            }
             // --- End Refinement ---
 
             setKeypoints(prev => {
