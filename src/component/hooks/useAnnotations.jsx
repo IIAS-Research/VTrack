@@ -492,8 +492,16 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
         const skeletonData = skeletons[page];
         if (!pointData || !skeletonData) return;
     
-        const removedPoint = pointData.points.find(p => p.id === pointId);
-        if (!removedPoint) return;
+        const originalPoint = pointData.points.find(p => p.id === pointId);
+        if (!originalPoint) return;
+        const removedPoint = {
+            ...originalPoint,
+            // ✅ On récupère tous les enfants de ce point (points qui ont lui comme parent)
+            children: pointData.points
+                .filter(p => (p.parents || []).includes(originalPoint.id))
+                .map(p => p.id)
+            };
+        removedPoint.parents = [...(originalPoint.parents || [])];
     
         // Nettoyage des parents dans tous les points
         const cleanedPoints = pointData.points
@@ -502,7 +510,7 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
                 ...p,
                 parents: (p.parents || []).filter(pid => pid !== pointId)
             }));
-    
+        
         // Supprimer tous les segments où ce point apparaît
         const removedSegments = [];
         const remainingSegments = [];
@@ -519,11 +527,19 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
         }
     
         // Mettre à jour les states
+        console.log("Pushing to history:", JSON.stringify(removedPoint, null, 2));
         setKeypoints(prev => ({
             ...prev,
             [page]: {
                 points: cleanedPoints,
-                history: [...(prev[page]?.history || []), { ...removedPoint, undoneSkeletons: removedSegments }]
+                history: [
+                    ...(prev[page]?.history || []),
+                    {
+                      ...removedPoint,
+                      undoneSkeletons: removedSegments,
+                      affectedChildren: removedPoint.children || []
+                    }
+                ]
             }
         }));
     
@@ -549,23 +565,54 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
     };
 
     const restoreKeypointAndRelations = (point, segmentsToRestore, page) => {
-        // Restaurer le point
-        setKeypoints(prev => {
-            const pageData = prev[page] || { points: [], history: [] };
+        console.log("Restoring point:", JSON.stringify(point, null, 2));
+        // 1. Restaurer le point
+            setKeypoints(prev => {
+                const pageData = prev[page] || { points: [], history: [] };
 
-            const alreadyExists = pageData.points.some(p => p.id === point.id);
-            if (alreadyExists) return prev;
+                const alreadyExists = pageData.points.some(p => p.id === point.id);
+                if (alreadyExists) return prev;
 
-            return {
-                ...prev,
-                [page]: {
-                    points: [...pageData.points, point],
-                    history: pageData.history
-                }
-            };
-        });
-    
-        // Restaurer les skeletons associés
+                return {
+                    ...prev,
+                    [page]: {
+                        points: [...pageData.points, {
+                            ...point,
+                            parents: Array.isArray(point.parents) ? point.parents : []  // <-- RESTAURE les parents si présents
+                        }],
+                        history: pageData.history
+                    }
+                };
+            });
+        // 2.  Restaurer les parents chez les points enfants
+        if (point.affectedChildren && point.affectedChildren.length > 0) {
+            setKeypoints(prev => {
+                const pageData = prev[page] || { points: [], history: [] };
+                const updatedPoints = pageData.points.map(p => {
+                    if (point.affectedChildren.includes(p.id)) {
+                        const currentParents = p.parents || [];
+                        if (!currentParents.includes(point.id)) {
+                            return {
+                                ...p,
+                                parents: [...currentParents, point.id]
+                            };
+                        }
+                    }
+                    return p;
+                });
+            
+                return {
+                    ...prev,
+                    [page]: {
+                        points: updatedPoints,
+                        history: pageData.history
+                    }
+                };
+            });
+        }
+        console.log("✅ Parents réassignés aux enfants :", point.affectedChildren);
+
+        // 3. Restaurer les skeletons associés
         if (segmentsToRestore && segmentsToRestore.length > 0) {
             setSkeletons(prev => {
                 const pageData = prev[page] || { segments: [], history: [] };
@@ -598,16 +645,16 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
             const pageData = prev[currentPage];
             if (!pageData || pageData.history.length === 0) return prev;
     
-            const newPoints = [...pageData.points];
             const history = [...pageData.history];
             const restoredEntry = history.pop();
-    
             const { undoneSkeletons, ...restoredPoint } = restoredEntry;
-    
+            const newPoints = [...pageData.points, restoredPoint];
+
             // Restaurer le point et ses relations
             restoreKeypointAndRelations(restoredPoint, undoneSkeletons, currentPage);
     
             // Retourner un nouvel état de keypoints sans le point dans l'historique
+            // return prev; 
             return {
                 ...prev,
                 [currentPage]: {
