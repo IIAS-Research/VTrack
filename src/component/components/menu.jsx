@@ -1,6 +1,4 @@
-import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import VLogo from '../../assets/Vtrack_Stylized_V.svg'
 
 const Menu = () => {
     const location = useLocation();
@@ -42,6 +40,14 @@ const Menu = () => {
                 ) : (
                     <Link 
                         to="/instructions" 
+                        onClick={(e) => {
+                            const confirmed = window.confirm(
+                                "⚠️ You will lose all your current annotations if you go to the instructions page.\n\nDon't forget to save your work first!"
+                            );
+                            if (!confirmed) {
+                                e.preventDefault(); // empêche la navigation si non confirmé
+                            }
+                        }}
                         className="relative px-5 py-2 font-medium text-indigo-700 group"
                     >
                         <span className="absolute inset-0 w-full h-full transition duration-200 ease-out transform translate-x-1 translate-y-1 bg-indigo-200 group-hover:-translate-x-0 group-hover:-translate-y-0 rounded"></span>
