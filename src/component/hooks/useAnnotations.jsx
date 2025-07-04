@@ -266,6 +266,35 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
                         }
                     };
                 });
+
+                // Mettre à jour le skelet et pas uniquement le point
+                setSkeletons(prev => {
+                    const pageData = prev[currentPage] || { segments: [], history: [] };
+                    const updatedSegments = pageData.segments.map(segment => {
+                        const updated = { ...segment };
+                    
+                        // On compare les coordonnées pour savoir si ce point est utilisé
+                        if (segment.x1 === selectedKeypoint.x && segment.y1 === selectedKeypoint.y) {
+                            updated.x1 = x;
+                            updated.y1 = y;
+                        }
+                        if (segment.x2 === selectedKeypoint.x && segment.y2 === selectedKeypoint.y) {
+                            updated.x2 = x;
+                            updated.y2 = y;
+                        }
+                    
+                        return updated;
+                    });
+                
+                    return {
+                        ...prev,
+                        [currentPage]: {
+                            ...pageData,
+                            segments: updatedSegments,
+                            history: []
+                        }
+                    };
+                    });
                 setSelectedKeypoint(null);
             }
             return;
