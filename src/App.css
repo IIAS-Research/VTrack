@@ -8,8 +8,8 @@ body {
     /* Animated Gradient Background */
     background: linear-gradient(
         -45deg,
-        rgba(238, 119, 82, 0.2),
-        rgba(231, 60, 126, 0.2),
+        rgba(82, 238, 225, 0.2),
+        rgba(60, 231, 217, 0.2),
         rgba(35, 166, 213, 0.2),
         rgba(35, 213, 171, 0.2)
     );
@@ -40,7 +40,7 @@ button {
 }
 
 button:hover {
-    transform: translateY(-2px) scale(1.1);
+    transform: scale(1.02);
     filter: brightness(0.9);
 }
 

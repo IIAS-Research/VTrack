@@ -24,6 +24,15 @@ export const labelColors = {
   "ACA2 -> ACA3": "hsl(100, 65%, 60%)",
   "PCA1 -> PCA2": "hsl(280, 70%, 65%)",
   "PCA2 -> PCA3": "hsl(270, 70%, 60%)",
+  "MCA1 -> MCA1": "hsl(200, 80%, 70%)",
+  "MCA2 -> MCA2": "hsl(180, 80%, 70%)",
+  "MCA3 -> MCA3": "hsl(160, 80%, 70%)",
+  "PCA1 -> PCA1": "hsl(260, 70%, 65%)",
+  "PCA2 -> PCA2": "hsl(250, 80%, 70%)",
+  "PCA3 -> PCA3": "hsl(240, 80%, 70%)",
+  "ACA1 -> ACA1": "hsl(100, 65%, 60%)",
+  "ACA2 -> ACA2": "hsl(90, 65%, 60%)",
+  "ACA3 -> ACA3": "hsl(80, 65%, 60%)",
 
   // 🍽️ Abdominaux (labels)
   "Abdominal Aorta": "hsl(0, 60%, 75%)",

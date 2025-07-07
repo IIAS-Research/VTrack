@@ -4,29 +4,38 @@ import UTIF from 'utif';
 export function useImageLoader({ viewerRef, canvasRef }) {
     const [images, setImages] = useState([]);
     const [isDraggingOver, setIsDraggingOver] = useState(false);
-    const [imgLoaded, setImgLoaded] = useState(false);
-
-    const adjustCanvasSize = (imageWidth, imageHeight) => {
+    const [imgLoaded, setImgLoaded] = useState(false);    const adjustCanvasSize = (imageWidth, imageHeight) => {
         const canvas = canvasRef.current;
     
         if (canvas) {
+            // Définir les dimensions réelles du canvas
             canvas.width = imageWidth;
             canvas.height = imageHeight;
 
+            // S'assurer que le canvas a la même taille que l'image
             canvas.style.width = imageWidth + 'px';
             canvas.style.height = imageHeight + 'px';
+            
+            // Mettre à jour le contexte pour éviter le flou
+            const ctx = canvas.getContext('2d');
+            ctx.imageSmoothingEnabled = true;
         }
-    };
-
-    const loadStandardImage = (url, callback) => {
+    };    const loadStandardImage = (url, callback) => {
         if (viewerRef.current && viewerRef.current.hasChildNodes()) {
             viewerRef.current.innerHTML = '';
         }
     
         const imgElement = document.createElement('img');
         imgElement.src = url;
-        imgElement.style.objectFit = 'contain';
-    
+        Object.assign(imgElement.style, {
+            display: 'block',
+            maxWidth: 'none',
+            maxHeight: 'none',
+            width: 'auto',
+            height: 'auto',
+            position: 'static'
+        });
+
         imgElement.onload = () => {
             viewerRef.current.appendChild(imgElement);
             setImgLoaded(true);
