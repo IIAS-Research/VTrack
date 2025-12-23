@@ -13,7 +13,7 @@ export const labelColors = {
   BA: "hsl(200, 90%, 85%)",
   VA: "hsl(30, 100%, 85%)",
   SCA: "hsl(170, 60%, 80%)",
-  PCOM: "hsl(55, 100%, 85%)",
+  PCom: "hsl(55, 100%, 85%)",
   PCA: "hsl(190, 100%, 90%)",
 
   // 🔀 Bifurcations Crânial (plus saturées)
@@ -22,6 +22,8 @@ export const labelColors = {
   "MCA2 -> MCA3": "hsl(190, 90%, 65%)",
   "ACA1 -> ACA2": "hsl(90, 60%, 65%)",
   "ACA2 -> ACA3": "hsl(100, 65%, 60%)",
+  "ICA -> PCom": "hsl(280, 35%, 60%)",
+  "PCom -> PCA1": "hsl(280, 35%, 60%)",
   "PCA1 -> PCA2": "hsl(280, 70%, 65%)",
   "PCA2 -> PCA3": "hsl(270, 70%, 60%)",
   "MCA1 -> MCA1": "hsl(200, 80%, 70%)",
