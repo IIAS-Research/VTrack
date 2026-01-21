@@ -22,7 +22,6 @@ export const labelColors = {
   "MCA2 -> MCA3": "hsl(190, 90%, 65%)",
   "ACA1 -> ACA2": "hsl(90, 60%, 65%)",
   "ACA2 -> ACA3": "hsl(100, 65%, 60%)",
-  "ICA -> PCom": "hsl(280, 35%, 60%)",
   "PCom -> PCA1": "hsl(280, 35%, 60%)",
   "PCA1 -> PCA2": "hsl(280, 70%, 65%)",
   "PCA2 -> PCA3": "hsl(270, 70%, 60%)",

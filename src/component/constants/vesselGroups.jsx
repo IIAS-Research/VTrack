@@ -12,7 +12,6 @@ export const vesselGroups = {
       "MCA2 -> MCA3",
       "ACA1 -> ACA2",
       "ACA2 -> ACA3",
-      "ICA -> PCom",
       "PCom -> PCA1",
       "PCA1 -> PCA2",
       "PCA2 -> PCA3",
