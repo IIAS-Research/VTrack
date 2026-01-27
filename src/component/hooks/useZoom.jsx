@@ -1,12 +1,15 @@
-import { useState, useCallback, useEffect } from "react"; // ajout useCallback 
+// Hook for managing zoom and pan functionality
+// Provides zoom in/out, pan controls, and coordinate transformation
+import { useState, useCallback, useEffect } from "react";
 
+// useZoom - Handles image zoom and panning with proper coordinate conversion
 export function useZoom({ canvasRef, viewerRef }) {
     const [zoom, setZoom] = useState(1);
     const [isPanning, setIsPanning] = useState(false);
     const [panStart, setPanStart] = useState({ x: 0, y: 0 });
     const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
 
-    // Fonction pour réinitialiser le zoom
+    // Function to reset zoom
     const resetZoom = useCallback(() => {
         setZoom(1);
         setPanOffset({ x: 0, y: 0 });
@@ -51,7 +54,7 @@ export function useZoom({ canvasRef, viewerRef }) {
 
     }, [zoom, panOffset, viewerRef]);
 
-    // Fonction pour gérer le zoom avec la molette // Ajout 
+    // Function to handle scroll wheel zoom
     const handleZoom = useCallback((event) => {
         event.preventDefault();
         
@@ -66,19 +69,19 @@ export function useZoom({ canvasRef, viewerRef }) {
     }, [zoomIn, zoomOut]); // Depend on zoomIn and zoomOut
 
 
-    // Fonction pour commencer le déplacement (clic droit) // Ajout 
+    // Function to start pan (right-click)
     const handleMouseDown = useCallback((event) => {
-        if (event.button === 2) { // Clic droit
+        if (event.button === 2) { // Right-click
             event.preventDefault();
             setIsPanning(true);
             setPanStart({ x: event.clientX, y: event.clientY });
         }
     }, []);
 
-    // Fonction pour effectuer le déplacement
+    // Function to perform pan
     const handleMouseMove = useCallback((event) => {
         if (isPanning) {
-            const dx = (event.clientX - panStart.x) / zoom; // ajout diviser par zoom pour rescale les coordonnées dans le JSON 
+            const dx = (event.clientX - panStart.x) / zoom; // Divide by zoom to rescale coordinates
             const dy = (event.clientY - panStart.y) / zoom;
             
             setPanOffset({
@@ -94,18 +97,18 @@ export function useZoom({ canvasRef, viewerRef }) {
         setIsPanning(false);
     }, []);
 
-    // Fonction pour convertir les coordonnées d'écran en coordonnées réelles
+    // Function to convert screen coordinates to real coordinates
     const screenToImageCoords = useCallback((screenX, screenY) => {
         const canvas = canvasRef.current;
         if (!canvas) return { x: screenX, y: screenY };
         
         const rect = canvas.getBoundingClientRect();
         
-        // Convertir les coordonnées d'écran en coordonnées de canvas
+        // Convert screen coordinates to canvas coordinates
         const canvasX = (screenX - rect.left) * (canvas.width / rect.width);
         const canvasY = (screenY - rect.top) * (canvas.height / rect.height);
         
-        // Appliquer la transformation inverse du zoom et du déplacement
+        // Apply inverse transformation of zoom and pan
         const imageX = canvasX / zoom - panOffset.x;
         const imageY = canvasY / zoom - panOffset.y;
         
@@ -118,18 +121,18 @@ export function useZoom({ canvasRef, viewerRef }) {
         const viewer = viewerRef.current;
         
         if (canvas && viewer) {
-            // Appliquer les transformations
+            // Apply transformations
             canvas.style.transform = `scale(${zoom}) translate(${panOffset.x}px, ${panOffset.y}px)`;
             viewer.style.transform = `scale(${zoom}) translate(${panOffset.x}px, ${panOffset.y}px)`;
         }
     }, [zoom, panOffset, canvasRef, viewerRef]);
 
-    // Ajouter les écouteurs d'événements
+    // Add event listeners
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
         
-        // Désactiver le menu contextuel pour permettre le clic droit
+        // Disable context menu to allow right-click
         const handleContextMenu = (e) => e.preventDefault();
         
         const canvas_parent = canvas.parentElement;

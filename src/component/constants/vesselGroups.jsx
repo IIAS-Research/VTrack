@@ -1,3 +1,5 @@
+// Vessel anatomy definitions
+// Groups vessels and bifurcation points by anatomical region: Cranial and Abdominal
 export const vesselGroups = {
   Cranial: {
     vessels: [

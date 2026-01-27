@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react";
+// Canvas component for displaying medical images and handling user interactions
+// Manages click detection, image coordinate conversion, and overlay rendering
 
+// ImageCanvas - Renders the image viewer with canvas overlay for annotations
 function ImageCanvas({ viewerRef, canvasRef, handleCanvasClick }) {
     const [imageBounds, setImageBounds] = useState(null);
     
-    // Fonction pour vérifier si un clic est à l'intérieur de l'image
+    // Function to check if click is inside image
     const isClickInsideImage = (clientX, clientY) => {
         const img = viewerRef.current?.querySelector('img');
         if (!img) return false;
@@ -17,7 +19,7 @@ function ImageCanvas({ viewerRef, canvasRef, handleCanvasClick }) {
         );
     };
 
-    // Fonction pour convertir les coordonnées du canvas en coordonnées de l'image originale
+    // Function to convert canvas coordinates to original image coordinates
     const convertCanvasToImageCoords = (clientX, clientY) => {
         const img = viewerRef.current?.querySelector('img');
         const canvas = canvasRef.current;
@@ -27,23 +29,23 @@ function ImageCanvas({ viewerRef, canvasRef, handleCanvasClick }) {
         const canvasRect = canvas.getBoundingClientRect();
         const imgRect = img.getBoundingClientRect();
         
-        // Calculer le ratio entre la taille affichée et la taille naturelle
+        // Calculate ratio between displayed size and natural size
         const scaleX = img.naturalWidth / imgRect.width;
         const scaleY = img.naturalHeight / imgRect.height;
         
-        // Convertir les coordonnées du clic en coordonnées relatives à l'image
+        // Convert click coordinates to image-relative coordinates
         const x = (clientX - imgRect.left) * scaleX;
         const y = (clientY - imgRect.top) * scaleY;
         
         return { x, y };
     };
 
-    // Intercepter le clic et vérifier s'il est dans l'image
+    // Intercept click and check if it's inside image
     const handleClick = (event) => {
         if (isClickInsideImage(event.clientX, event.clientY)) {
             const { x, y } = convertCanvasToImageCoords(event.clientX, event.clientY);
             
-            // Créer un nouvel événement avec les coordonnées transformées
+            // Create new event with transformed coordinates
             const newEvent = {
                 ...event,
                 originalX: x,

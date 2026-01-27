@@ -1,3 +1,5 @@
+// Main DICOM annotation interface
+// Allows users to annotate medical images with keypoints, skeletons, and bounding boxes
 import { useRef, useState, useEffect } from "react";
 import { useImageLoader } from "./hooks/useImageLoader";
 import { useZoom } from "./hooks/useZoom";
@@ -9,6 +11,7 @@ import { ZoomControls } from "./components/ZoomControls";
 import { useAnnotations } from "./hooks/useAnnotations";
 import { Undo2, Redo2 } from "lucide-react";
 
+// DicomAnnotator - Core annotation tool supporting keypoints, skeletons, and bboxes for medical images
 export default function DicomAnnotator() {
     // Initialize refs
     const fileInputRef = useRef(null);
@@ -16,7 +19,7 @@ export default function DicomAnnotator() {
     const canvasRef = useRef(null);
     const prevImagesLengthRef = useRef(0); // Add this ref to track previous image count
     const keypointIdRef = useRef(0);
-      // Initialize state
+    // Initialize state
     const [currentPage, setCurrentPage] = useState(1);
     const [injectionSite, setInjectionSite] = useState("none");
     const [selectedMode, setSelectedMode] = useState(null);
@@ -101,18 +104,18 @@ export default function DicomAnnotator() {
         if (currentLength > prevLength) {
             const lastPageIndex = currentLength;
 
-            setCurrentPage(lastPageIndex); // Met à jour la page actuelle
-            resetZoom(); // Réinitialise le zoom
+            setCurrentPage(lastPageIndex); // Update current page
+            resetZoom(); // Reset zoom
 
-            // Pas besoin de recharger l'image ici, elle l'est déjà
-            // On attend juste un petit délai pour être sûr qu'elle est affichée
+            // No need to reload image here, already loaded
+            // Just wait a bit to ensure it's displayed
             setTimeout(() => {
                 const img = viewerRef.current?.querySelector("img");
                 if (img) {
                     setImageDimensions({ width: img.naturalWidth, height: img.naturalHeight });
                 }
-                drawAll(lastPageIndex); // Dessine les annotations une fois que l'image est là
-            }, 100); // petit délai pour laisser le temps au DOM de s'ajuster
+                drawAll(lastPageIndex); // Draw annotations once image is displayed
+            }, 100); // Small delay to let DOM adjust
         }
 
         prevImagesLengthRef.current = currentLength;
@@ -193,7 +196,6 @@ export default function DicomAnnotator() {
                 x,
                 y,
                 label,
-                // parents: parents || []
                 parents: (parents || []).map(p => typeof p === 'object' ? p.id : p)
             })),
             skeleton: skeletons || [],
@@ -218,7 +220,7 @@ export default function DicomAnnotator() {
             try {
                 const data = JSON.parse(e.target.result);
 
-                // Géstion par id cette fois ci et plus par find (erreur si 2 labels sont identiques)
+                // Handling by id this time, not by find (avoids errors if 2 labels are identical)
                 if (data.vessel) {
                     const idToPointMap = {};
                     data.vessel.forEach(p => {
@@ -226,8 +228,6 @@ export default function DicomAnnotator() {
                     });
                 
                     data.vessel.forEach(p => {
-                        // idToPointMap[p.id].parents = (p.parents || []).map(pid => idToPointMap[pid]);
-                        // idToPointMap[p.id].parents = [...(p.parents || [])];
                         idToPointMap[p.id].parents = (p.parents || []).map(pid =>
                             typeof pid === 'object' ? pid.id : pid
                         );
@@ -247,7 +247,7 @@ export default function DicomAnnotator() {
                     setBboxes(data.bbox);
                 }
             } catch (error) {
-                console.error("Erreur lors du chargement du JSON :", error);
+                console.error("Error loading JSON:", error);
             }
         };
         reader.readAsText(file);
@@ -271,7 +271,8 @@ export default function DicomAnnotator() {
     const handleSkeletonLabelSelect = (label) => {
         setSelectedSkeletonLabel(label);
         setSelectedKeypointLabel(null); // Deselect keypoints when a skeleton is selected
-    };    // Handle keypoint label selection
+    };
+    // Handle keypoint label selection
     const handleKeypointLabelSelect = (label) => {
         setSelectedKeypointLabel(label);
         setSelectedSkeletonLabel(null); // Deselect skeletons when a keypoint is selected
@@ -484,7 +485,7 @@ export default function DicomAnnotator() {
                         chooseImageButton={chooseImageButtonJSX}
                     />
 
-                    {/* Dimensions de l'image */}
+                    {/* Image dimensions */}
                     <div className="text-sm text-gray-600 font-medium text-center mt-2">
                     Dimensions : {imageDimensions.width} × {imageDimensions.height} px
                     </div>
@@ -543,7 +544,7 @@ export default function DicomAnnotator() {
             <div className="w-full lg:w-1/3 flex flex-col card bg-white p-6 rounded-xl h-fit">
                 <h3 className="text-center text-2xl font-bold mb-4 pb-2 text-indigo-700 border-b border-gray-100">Tools</h3>
 
-                    {/*Classification de l'injection */}
+                    {/* Injection site classification */}
                     <div className="mb-4 rounded-lg border border-gray-200 shadow-sm p-3 bg-gradient-to-b from-white to-gray-50">
                         <h4 className="text-lg font-semibold mb-3 text-indigo-700 border-b border-gray-100 pb-2">
                             Contrast Injection Site

@@ -1,5 +1,7 @@
-import React from "react";
+// Component for selecting skeleton annotation mode
+// Toggles skeleton (line) drawing functionality
 
+// SkeletonLabels - UI button for activating skeleton annotation mode
 export function SkeletonLabels({ title, colors, selectedLabel, setSelectedLabel }) {
     return (
         <div className="flex flex-col items-center w-full">

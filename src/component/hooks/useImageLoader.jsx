@@ -1,6 +1,9 @@
+// Hook for loading and managing DICOM/standard images
+// Handles image file uploads, drag-and-drop, and canvas sizing
 import { useState, useCallback } from "react";
 import UTIF from 'utif';
 
+// useImageLoader - Manages image loading, canvas dimensions, and file handling
 export function useImageLoader({ viewerRef, canvasRef }) {
     const [images, setImages] = useState([]);
     const [isDraggingOver, setIsDraggingOver] = useState(false);
@@ -8,15 +11,15 @@ export function useImageLoader({ viewerRef, canvasRef }) {
         const canvas = canvasRef.current;
     
         if (canvas) {
-            // Définir les dimensions réelles du canvas
+            // Set actual canvas dimensions
             canvas.width = imageWidth;
             canvas.height = imageHeight;
 
-            // S'assurer que le canvas a la même taille que l'image
+            // Ensure canvas has same size as image
             canvas.style.width = imageWidth + 'px';
             canvas.style.height = imageHeight + 'px';
             
-            // Mettre à jour le contexte pour éviter le flou
+            // Update context to avoid blur
             const ctx = canvas.getContext('2d');
             ctx.imageSmoothingEnabled = true;
         }

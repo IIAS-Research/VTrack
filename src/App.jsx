@@ -1,9 +1,11 @@
-import React from 'react';
+// Main application component
+// Handles routing between Dashboard and Instructions pages
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Dashboard from './page/dashboard';
 import Instructions from './component/Instructions';
 import './App.css';
 
+// App - Main router component managing all application routes
 function App() {
   return (
     <BrowserRouter>

@@ -1,6 +1,8 @@
-import React from "react";
+// Component for navigating between images and saving annotations
+// Provides previous/next buttons, page counter, and export functionality
 import { ArrowLeft, ArrowRight, Save } from "lucide-react";
 
+// ImageNavigator - Controls for moving between images and saving work
 export function ImageNavigator({ 
     currentPage, 
     imagesLength, 

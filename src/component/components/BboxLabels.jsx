@@ -1,5 +1,7 @@
-import React from "react";
+// Component for selecting bounding box annotation types
+// Supports Occlusion and Hide Region labels
 
+// BboxLabels - UI for selecting bounding box annotation types
 export function BboxLabels({ title, colors, selectedLabel, setSelectedLabel }) {
     const labels = ["Occlusion", 
                     "Hide Region"];

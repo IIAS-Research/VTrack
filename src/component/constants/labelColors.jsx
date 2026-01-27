@@ -1,5 +1,8 @@
+// Color definitions for annotation labels
+// Organized by anatomical group: Cranial, Abdominal
+// Colors are in HSL format for easy adjustment
 export const labelColors = {
-  // 🧠 Crânial (pastels)
+  // Cranial (pastels)
   ICA: "hsl(340, 100%, 90%)",
   MCA1: "hsl(210, 100%, 90%)",
   MCA2: "hsl(190, 90%, 85%)",
@@ -16,7 +19,7 @@ export const labelColors = {
   PCom: "hsl(55, 100%, 85%)",
   PCA: "hsl(190, 100%, 90%)",
 
-  // 🔀 Bifurcations Crânial (plus saturées)
+  // 🔀 Bifurcations Cranial (more saturated)
   "Bifurcation carotidienne": "hsl(340, 80%, 70%)",
   "MCA1 -> MCA2": "hsl(210, 90%, 70%)",
   "MCA2 -> MCA3": "hsl(190, 90%, 65%)",
@@ -35,7 +38,7 @@ export const labelColors = {
   "ACA2 -> ACA2": "hsl(90, 65%, 60%)",
   "ACA3 -> ACA3": "hsl(80, 65%, 60%)",
 
-  // 🍽️ Abdominaux (labels)
+  // Abdominal (labels)
   "Abdominal Aorta": "hsl(0, 60%, 75%)",
   "Celiac Trunk": "hsl(330, 60%, 75%)",
   "Left Gastric Artery": "hsl(280, 60%, 75%)",
@@ -78,7 +81,7 @@ export const labelColors = {
   "IMA → Sigmoid Arteries": "hsl(120, 80%, 70%)",
   "IMA → Superior Rectal Artery": "hsl(100, 80%, 70%)",
 
-  // ❤️ Coronaires
+  // Coronaires
   "Right Coronary Artery (RCA)": "hsl(10, 80%, 80%)",
   "Conus Branch": "hsl(30, 80%, 80%)",
   "Sinoatrial (SA) Nodal Branch": "hsl(60, 80%, 80%)",
@@ -99,7 +102,7 @@ export const labelColors = {
   "LMCA → Ramus Intermedius": "hsl(230, 90%, 65%)",
 
 
-  // 💪 Membres supérieurs
+  // Upper limbs
   "Subclavian Artery": "hsl(200, 60%, 85%)",
   "Axillary Artery": "hsl(40, 60%, 85%)",
   "Brachial Artery": "hsl(120, 50%, 80%)",
@@ -117,7 +120,7 @@ export const labelColors = {
   "Ulnar Artery → Superficial Palmar Arch": "hsl(10, 60%, 65%)",
   "Radial Artery → Deep Palmar Arch": "hsl(330, 60%, 65%)",
 
-  // 🦵 Membres inférieurs
+  // Lower limbs
   "Common Iliac Artery": "hsl(260, 50%, 85%)",
   // "External Iliac Artery": "hsl(20, 50%, 85%)",
   // "Internal Iliac Artery": "hsl(100, 50%, 85%)",
@@ -144,7 +147,7 @@ export const labelColors = {
   "Popliteal Artery → Posterior Tibial Artery": "hsl(170, 60%, 65%)",
   "Posterior Tibial Artery → Fibular Artery": "hsl(250, 60%, 65%)",
 
-  // Couleur Occlusion / Masquage
+  // Occlusion / Hide Region color
   "Occlusion": "#FF0000",
   "Hide Region": "#000000",
 };

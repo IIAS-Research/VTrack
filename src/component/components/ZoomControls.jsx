@@ -1,6 +1,8 @@
-import React from "react";
+// Component for zoom control buttons
+// Provides zoom in, zoom out, and reset zoom functionality with visual feedback
 import { ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
 
+// ZoomControls - UI buttons for managing image zoom level
 export function ZoomControls({ zoom, zoomIn, zoomOut, resetZoom }) {
   return (
     <div className="flex flex-col rounded-xl overflow-hidden shadow-sm border border-indigo-100 bg-gradient-to-b from-white to-indigo-50">

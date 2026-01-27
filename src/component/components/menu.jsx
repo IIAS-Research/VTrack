@@ -1,5 +1,8 @@
+// Navigation menu component
+// Displays app logo and links between annotator and instructions pages
 import { Link, useLocation } from 'react-router-dom';
 
+// Menu - Fixed navigation bar with page links and confirmation dialogs
 const Menu = () => {
     const location = useLocation();
     const isInstructionsPage = location.pathname === '/instructions';
@@ -45,7 +48,7 @@ const Menu = () => {
                                 "⚠️ You will lose all your current annotations if you go to the instructions page.\n\nDon't forget to save your work first!"
                             );
                             if (!confirmed) {
-                                e.preventDefault(); // empêche la navigation si non confirmé
+                                e.preventDefault(); // Prevent navigation if not confirmed
                             }
                         }}
                         className="relative px-5 py-2 font-medium text-indigo-700 group"

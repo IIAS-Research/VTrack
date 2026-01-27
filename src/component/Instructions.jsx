@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+// Instructions and tutorial page
+// Provides user guidance for using the annotation tool in French and English
 import Menu from "./components/menu";
 import tuto_keypoints_1 from "../assets/tuto_keypoints_1.gif";
 import tuto_keypoints_2 from "../assets/tuto_keypoints_2.gif";
@@ -6,6 +7,7 @@ import tuto_skeleton from "../assets/tuto_skeleton.gif";
 import tuto_bbox from "../assets/tuto_bbox.gif";
 import tuto_move from "../assets/move.gif";
 
+// Instructions - Displays tutorials for keypoints, skeletons, bounding boxes, and move operations
 export default function Instructions() {
     const [lang, setLang] = useState("fr");
 

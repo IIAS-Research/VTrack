@@ -1,27 +1,12 @@
-import React from "react";
+// Component for selecting vessel and bifurcation labels
+// Displays vessels and bifurcations organized by anatomical group
 import { vesselGroups } from "../constants/vesselGroups";
 
+// VesselLabels - UI for selecting vessel and bifurcation labels
 export function VesselLabels({ title, colors, selectedLabel, setSelectedLabel, selectedGroup, setSelectedGroup }) {
     const groupNames = Object.keys(vesselGroups);
     const currentLabels = vesselGroups[selectedGroup];
-/*
-    const bifurcationLabels = [
-        "Bifurcation carotidienne",
-        "MCA1 -> MCA2",
-        "MCA2 -> MCA3",
-        "ACA1 -> ACA2",
-        "ACA2 -> ACA3",
-        "PCA1 -> PCA2",
-        "PCA2 -> PCA3"
-    ];
 
-    const bboxLabels = ["Occlusion", 
-                        "Hide Region"];
-
-    const vesselLabels = Object.keys(colors)
-        .filter(label => !bifurcationLabels.includes(label))
-        .filter(label => !bboxLabels.includes(label));
-*/
     return (
         <div className="w-full flex flex-col gap-4">
             {/* Choix du groupe */}

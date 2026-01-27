@@ -1,7 +1,10 @@
+// Hook for managing all annotation types: keypoints, skeletons, and bounding boxes
+// Handles drawing, undo/redo, state management, and coordinate conversion
 import { useState, useEffect, useRef } from "react";
 import { labelColors } from "../constants/labelColors";
 import { vesselGroups } from "../constants/vesselGroups";
 
+// useAnnotations - Manages keypoint, skeleton, and bounding box annotations with history tracking
 export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedKeypointLabel, selectedSkeletonLabel, selectedBboxLabel, isMoveMode, keypointIdRef }) {
     // State structure: { pageNum: { points: [], history: [] } } etc.
 
@@ -15,19 +18,18 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
     const lastClickTimestampRef = useRef(0); // Ref to store the last click time
     const [selectedKeypoint, setSelectedKeypoint] = useState(null); // State for move mode
     
-    // État pour activer/désactiver les connexions entre keypoints
+    // State to enable/disable connections between keypoints
     const [skipParentConnection, setSkipParentConnection] = useState(false);
 
-    // Écouteur d'événements pour la touche Suppr
+    // Event listener for Delete key
     useEffect(() => {
         const handleKeyDown = (event) => {
-            // Détecte la touche Suppr (Delete) ou Backspace pour les claviers Mac
+            // Detect Delete key or Backspace for Mac keyboards
             if (event.key === 'Delete' || event.key === 'Backspace') {
-                // Active le mode "sans parent" pour le prochain keypoint
+                // Activate parentless mode for next keypoint
                 setSkipParentConnection(true);
-                // Réinitialise également le point de départ des skeletons
+                // Also reset skeleton start point
                 setStartPoint(null);
-                console.log("Mode sans parent activé (touche Suppr pressée) - prochain point sera indépendant");
             }
         };
         
@@ -86,7 +88,7 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
         points.forEach(({ x, y, label, parents, id }) => {
             ctx.fillStyle = colors[label];
             
-            // Dessiner un point plus grand et avec un contour si c'est le point sélectionné
+            // Draw larger point with outline if it's the selected point
             if (selectedKeypoint && selectedKeypoint.id === id) {
                 ctx.beginPath();
                 ctx.arc(x, y, keypointSize + 2, 0, 2 * Math.PI);
@@ -146,7 +148,7 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
         const boxes = bboxes[page]?.boxes || []; // Access boxes array
         boxes.forEach(({ x1, y1, x2, y2, label }) => {
             if (label === "Hide Region") {
-                // Dessin spécial : remplissage noir
+                // Special drawing: black fill
                 ctx.fillStyle = "#000000";
                 ctx.globalAlpha = 0.4; // ou 1.0 si tu veux du noir opaque
                 ctx.fillRect(x1, y1, x2 - x1, y2 - y1);
@@ -163,7 +165,7 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
             }
         });
 
-        // Dessin de la Bbox en cours de création
+        // Draw bbox in progress
         if (isDrawingBbox && bboxStart && bboxStart.currentX !== undefined && bboxStart.currentY !== undefined) {
             const startX = bboxStart.x;
             const startY = bboxStart.y;
@@ -226,7 +228,7 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
 
     const handleCanvasClick = (event) => {
 
-        // Si aucun mode n'est sélectionné, on ne fait rien
+        // If no mode selected, do nothing
         if (!selectedKeypointLabel && !selectedSkeletonLabel && !selectedBboxLabel && !isMoveMode) return;
 
         const canvas = canvasRef.current;
@@ -240,16 +242,16 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
         const x = (event.clientX - rect.left) * scaleX;
         const y = (event.clientY - rect.top) * scaleY;
 
-        // Mode déplacement de keypoint
+        // Move mode for keypoint
         if (isMoveMode) {
             if (!selectedKeypoint) {
-                // Premier clic : sélectionner le keypoint
+                // First click: select keypoint
                 const nearestPoint = findNearestKeypoint(x, y);
                 if (nearestPoint) {
                     setSelectedKeypoint(nearestPoint);
                 }
             } else {
-                // Deuxième clic : déplacer le keypoint
+                // Second click: move keypoint
                 setKeypoints(prev => {
                     const pageData = prev[currentPage] || { points: [], history: [] };
                     const updatedPoints = pageData.points.map(point => {
@@ -267,13 +269,13 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
                     };
                 });
 
-                // Mettre à jour le skelet et pas uniquement le point
+                // Update skeleton and not just the point
                 setSkeletons(prev => {
                     const pageData = prev[currentPage] || { segments: [], history: [] };
                     const updatedSegments = pageData.segments.map(segment => {
                         const updated = { ...segment };
                     
-                        // On compare les coordonnées pour savoir si ce point est utilisé
+                        // Compare coordinates to know if this point is used
                         if (segment.x1 === selectedKeypoint.x && segment.y1 === selectedKeypoint.y) {
                             updated.x1 = x;
                             updated.y1 = y;
@@ -300,7 +302,7 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
             return;
         }
 
-        // Gestion des keypoints (vaisseaux)
+        // Handle keypoints (vessels)
         if (selectedKeypointLabel) {
             console.log(`Adding keypoint for label: ${selectedKeypointLabel}`); // Log which label is active
             clearHistory('keypoint'); // Clear redo history on new action
@@ -310,17 +312,16 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
             const currentPoints = keypoints[currentPage]?.points || [];
             const lastPointOfLabel = currentPoints.filter(k => k.label === selectedKeypointLabel).slice(-1)[0];
               const newPoint = {
-                id: keypointIdRef.current++,  // auto-incrément
+                id: keypointIdRef.current++,  // auto-increment
                 x,
                 y,
                 label: selectedKeypointLabel,
-                // Si mode "sans parent" est activé OU pas de point précédent, pas de parent
+                // If parentless mode is activated OR no previous point, no parent
                 parents: (skipParentConnection || !lastPointOfLabel) ? [] : [lastPointOfLabel.id]
               };
 
-            // Réinitialiser le mode "sans parent" après avoir créé un point sans parent
+            // Reset parentless mode after creating point without parent
             if (skipParentConnection) {
-                console.log("Point créé sans parent - Mode normal réactivé");
                 setSkipParentConnection(false);
             }
             // --- End Refinement ---
@@ -331,7 +332,6 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
 
                 // Debounce: If click is too soon (less than 10ms), ignore it
                 if (timeSinceLastClick < 10) {
-                    console.log(`Click ignored (debounce ${timeSinceLastClick}ms)`);
                     return prev;
                 }
 
@@ -366,13 +366,13 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
                 setStartPoint(closest);
                 // No drawAll needed here, just setting start point
             } else {
-                // Ne pas connecter un point à lui-même
+                // Do not connect point to itself
                 if (
                     startPoint.x === closest.x &&
                     startPoint.y === closest.y &&
                     startPoint.label === closest.label
                 ) {
-                    console.warn("Squelette ignoré : un point ne peut pas se connecter à lui-même.");
+                    console.warn("Ignored skeleton: a point cannot connect to itself.");
                     setStartPoint(null);
                     return;
                 }
@@ -383,7 +383,6 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
             
                     // Debounce: If click is too soon (less than 10ms), ignore it
                     if (timeSinceLastClick < 10) {
-                        console.log(`Click ignored (debounce ${timeSinceLastClick}ms)`);
                         return prev;
                     }
             
@@ -398,7 +397,7 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
                     }];
                     return newSkeletons;
                 });
-                // ✅ Mettre à jour le parent du point destination
+                // Update parent of destination point
                 setKeypoints(prev => {
                     const newKeypoints = { ...prev };
                     const pageData = newKeypoints[currentPage];
@@ -428,10 +427,9 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
             return;
         }
 
-        // Gestion des Bbox 
+        // Handle bbox
         const bboxLabels = ["Occlusion", "Hide Region"];
         if (bboxLabels.includes(selectedBboxLabel)) {
-            console.log("Handling Bbox click"); // Log bbox handling
             if (!isDrawingBbox) {
                 setIsDrawingBbox(true);
                 setBboxStart({ x, y, width: 0, height: 0 });
@@ -444,7 +442,6 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
             
                     // Debounce: If click is too soon (less than 10ms), ignore it
                     if (timeSinceLastClick < 10) {
-                        console.log(`Click ignored (debounce ${timeSinceLastClick}ms)`);
                         return prev;
                     }
             
@@ -525,7 +522,7 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
         if (!originalPoint) return;
         const removedPoint = {
             ...originalPoint,
-            // ✅ On récupère tous les enfants de ce point (points qui ont lui comme parent)
+            // Get all children of this point (points that have this as parent)
             children: pointData.points
                 .filter(p => (p.parents || []).includes(originalPoint.id))
                 .map(p => p.id)
@@ -534,13 +531,13 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
     
         // Nettoyage des parents dans tous les points
         const cleanedPoints = pointData.points
-            .filter(p => p.id !== pointId)  // Supprimer le point lui-même
+            .filter(p => p.id !== pointId)  // Remove point itself
             .map(p => ({
                 ...p,
                 parents: (p.parents || []).filter(pid => pid !== pointId)
             }));
         
-        // Supprimer tous les segments où ce point apparaît
+        // Remove all segments where this point appears
         const removedSegments = [];
         const remainingSegments = [];
     
@@ -555,8 +552,7 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
             }
         }
     
-        // Mettre à jour les states
-        console.log("Pushing to history:", JSON.stringify(removedPoint, null, 2));
+        // Update states
         setKeypoints(prev => ({
             ...prev,
             [page]: {
@@ -594,8 +590,7 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
     };
 
     const restoreKeypointAndRelations = (point, segmentsToRestore, page) => {
-        console.log("Restoring point:", JSON.stringify(point, null, 2));
-        // 1. Restaurer le point
+        // 1.Restore the point
             setKeypoints(prev => {
                 const pageData = prev[page] || { points: [], history: [] };
 
@@ -607,7 +602,7 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
                     [page]: {
                         points: [...pageData.points, {
                             ...point,
-                            parents: Array.isArray(point.parents) ? point.parents : []  // <-- RESTAURE les parents si présents
+                            parents: Array.isArray(point.parents) ? point.parents : []  // Restore parents if present
                         }],
                         history: pageData.history
                     }
@@ -639,9 +634,8 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
                 };
             });
         }
-        console.log("✅ Parents réassignés aux enfants :", point.affectedChildren);
 
-        // 3. Restaurer les skeletons associés
+        // 3. Restore associated skeletons
         if (segmentsToRestore && segmentsToRestore.length > 0) {
             setSkeletons(prev => {
                 const pageData = prev[page] || { segments: [], history: [] };
@@ -679,11 +673,10 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
             const { undoneSkeletons, ...restoredPoint } = restoredEntry;
             const newPoints = [...pageData.points, restoredPoint];
 
-            // Restaurer le point et ses relations
+            // Restore point and its relations
             restoreKeypointAndRelations(restoredPoint, undoneSkeletons, currentPage);
     
-            // Retourner un nouvel état de keypoints sans le point dans l'historique
-            // return prev; 
+            // Return new keypoints state without point in history
             return {
                 ...prev,
                 [currentPage]: {
@@ -703,16 +696,16 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
 
             const segments = [...pageData.segments];
             const history = [...pageData.history];
-            const removedSegment = segments.pop(); // Le segment à annuler
+            const removedSegment = segments.pop(); // The segment to undo
             history.push(removedSegment);
 
-            // Mise à jour des parents des points associés à ce segment
+            // Update parents of points associated with segment
             setKeypoints(prevKeypoints => {
                 const updatedKeypoints = { ...prevKeypoints };
                 const pageKeypoints = updatedKeypoints[currentPage];
                 if (!pageKeypoints) return prevKeypoints;
 
-                // Trouver le point destination du segment supprimé (x2, y2, label2)
+                // Find destination point of deleted segment (x2, y2, label2)
                 const destPoint = pageKeypoints.points.find(p =>
                     p.x === removedSegment.x2 &&
                     p.y === removedSegment.y2 &&
@@ -724,7 +717,7 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
                     p.label === removedSegment.label1
                 );
 
-                // Supprimer UNIQUEMENT le parent correspondant à ce segment
+                // Remove ONLY the parent corresponding to this segment
                 if (destPoint && sourcePoint) {
                     pageKeypoints.points = pageKeypoints.points.map(point => {
                         if (point.id === destPoint.id) {
@@ -775,7 +768,7 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
                     p.label === restoredSegment.label2
                 )?.id;
             
-                // Ajoute le parent uniquement si les deux points sont trouvés
+                // Add parent only if both points are found
                 if (sourcePoint && destPointId !== undefined) {
                     pageKeypoints.points = pageKeypoints.points.map(point => {
                         if (point.id === destPointId) {
@@ -845,7 +838,7 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
     const resetSkeletons = () => {
         ensurePageData(currentPage);
     
-        // On nettoie aussi les parents dans les keypoints associés aux segments
+        // Also clean parents in keypoints associated with segments
         setKeypoints(prevKeypoints => {
             const updatedKeypoints = { ...prevKeypoints };
             const pageKeypoints = updatedKeypoints[currentPage];
@@ -862,7 +855,7 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
                     p.y === seg.y1 &&
                     p.label === seg.label1
                 );
-            }).filter(p => p !== undefined); // enlever les nulls au cas où
+            }).filter(p => p !== undefined); // Remove nulls just in case
     
             const parentIds = parentPoints.map(p => p.id);
     
@@ -884,7 +877,7 @@ export function useAnnotations({ canvasRef, currentPage, keypointSize, selectedK
             [currentPage]: { segments: [], history: [] } // Clear segments and history
         }));
     
-        setStartPoint(null); // Reset point de départ éventuel
+        setStartPoint(null); // Reset start point if any
     };
 
      const resetBboxes = () => {
