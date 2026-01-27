@@ -49,7 +49,7 @@ docker-compose up
 ## Application Interface
 
 <div align="center">
-  <img src="src/assets/tuto_keypoints_2.gif" width="600" alt="Vtrack Application">
+  <img src="src/assets/tuto_keypoints_2.gif" width="800" alt="Vtrack Application">
 </div>
 
 
