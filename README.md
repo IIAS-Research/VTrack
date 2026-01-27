@@ -52,6 +52,7 @@ docker-compose up
   <img src="src/assets/tuto_keypoints_2.gif" width="800" alt="Vtrack Application">
 </div>
 
+**For comprehensive tutorials with visual guides, refer to the "Instructions" page within the application.**
 
 ## Usage
 
@@ -64,6 +65,7 @@ docker-compose up
 3. **Annotate** - Click on image to place keypoints, connect with skeletons, or draw boxes
 4. **Navigate** - Use Previous/Next to move between images
 5. **Save** - Click Save to export all annotations as JSON
+
 
 ### Keyboard Shortcuts
 
