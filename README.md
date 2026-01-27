@@ -48,7 +48,9 @@ docker-compose up
 
 ## Application Interface
 
-![Vtrack Application](src/assets/tuto_keypoints_2.gif)
+<div align="center">
+  <img src="src/assets/tuto_keypoints_2.gif" width="600" alt="Vtrack Application">
+</div>
 
 
 ## Usage
@@ -68,4 +70,3 @@ docker-compose up
 - **Delete** - Create independent keypoint (no parent connection)
 - **Mouse Wheel** - Zoom in/out
 - **Right Click + Drag** - Pan image
-
