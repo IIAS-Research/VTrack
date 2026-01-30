@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+message: If you use this software, please cite it using these metadata.
+title: VTrack
+abstract: VTrack is an open-source tool for blood vessel and occlusion annotation. 
+authors:
+  - family-names: HUYNH
+    given-names: Raphaëlle
+  - family-names: DINGUIR
+    given-names: Linda
+    orcid: "https://orcid.org/0009-0003-0442-8960"
+  - family-names: COLLIGNON
+    given-names: Alexandre
+    orcid: "https://orcid.org/0000-0002-1234-5678"
+  - family-names: SAHMI
+    given-names: Liam
+    orcid: "https://orcid.org/..."
+  - family-names: MEDDEB
+    given-names: Mohamed Aymen
+    orcid: "https://orcid.org/..."
+  - family-names: GALLAY
+    given-names: Lyse
+    orcid: "https://orcid.org/0009-0004-7490-3613"
+  - family-names: MERIEUX
+    given-names: Rudy
+    orcid: "https://orcid.org/0009-0004-6643-8555"
+version: 1.0.0
+date-released: "2026-01-28"
+license: Apache-2.0
+repository-code: "https://github.com/IIAS-Research/VTrack"
