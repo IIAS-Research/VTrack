@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18701441.svg)](https://doi.org/10.5281/zenodo.18701441)
+
 <div align="center">
   <img src="src/assets/Vtrack_Stylized_V.svg" width="200" alt="Vtrack Logo">
 </div>
@@ -72,3 +74,4 @@ docker-compose up
 - **Delete** - Create independent keypoint (no parent connection)
 - **Mouse Wheel** - Zoom in/out
 - **Right Click + Drag** - Pan image
+
